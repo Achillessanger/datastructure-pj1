@@ -23,9 +23,9 @@ public class BPTree {
     }
     public void treeWalk(){
         BPTNode leafnodes = theLeftestLeaf;
-        for(Map.Entry<String,String> entry : leafnodes.next.next.next.parent.entries){
-            System.out.print(entry.getKey()+"!!");
-        }
+//        for(Map.Entry<String,String> entry : leafnodes.next.next.next.parent.entries){
+//            System.out.print(entry.getKey()+"!!");
+//        }
         do{
             for(Map.Entry<String,String> entry : leafnodes.entries){
                 System.out.print(entry.getKey()+" ");
@@ -80,7 +80,7 @@ public class BPTree {
             }
         }
         //↑找到了插入的叶节点
-        if(findWhereToInsertNode.entries.size() == 0){
+        if(findWhereToInsertNode.entries.size() == 0){//但是每个叶节点都应该有东西的吧……
             findWhereToInsertNode.entries.add(new AbstractMap.SimpleEntry<String, String>(key,chinese));
         }
         for(int i = 0; i <= findWhereToInsertNode.entries.size(); i++){
@@ -123,6 +123,16 @@ public class BPTree {
             if(correctNode.parent.childrenNodes.indexOf(correctNode) - 1 >= 0){
                 BPTNode preCorrectNode = correctNode.parent.childrenNodes.get(correctNode.parent.childrenNodes.indexOf(correctNode) - 1);
                 preCorrectNode.next = left;
+            }else {
+                BPTNode tmpNode = correctNode.parent;
+                if(tmpNode.parent != null){
+                    if (tmpNode.parent.childrenNodes.indexOf(tmpNode) >= 1){ //这个循环也不一定对！飙泪
+                        tmpNode = tmpNode.parent.childrenNodes.get(tmpNode.parent.childrenNodes.indexOf(tmpNode)-1);
+                        tmpNode = tmpNode.childrenNodes.get(tmpNode.childrenNodes.size()-1);
+                        tmpNode.next = left;
+                    }
+                }
+
             }
 
             if(correctNode.isLeaf){
@@ -171,7 +181,35 @@ public class BPTree {
         }
     }
 
-    public void delete(){
+    public void delete(String key){
+        //↓要从root开始找key属于哪个叶节点,并记录下如果在中间节点有的那个中间节点
+        if(search(key) == null) return;//不能删除原来就没有的东西
 
+        BPTNode findKeyInWhichLeafNode = root;
+        BPTNode keyInInerLeaf ;
+        while (!findKeyInWhichLeafNode.isLeaf){
+            for (int i = 0; i <= findKeyInWhichLeafNode.entries.size(); i++){
+                if(i == 0){
+                    if(key.compareTo(findKeyInWhichLeafNode.entries.get(i).getKey()) < 0){
+                        findKeyInWhichLeafNode = findKeyInWhichLeafNode.childrenNodes.get(i);
+                        break;
+                    }
+                }else if(i == findKeyInWhichLeafNode.entries.size()){
+                    if(key.compareTo(findKeyInWhichLeafNode.entries.get(i - 1).getKey()) >= 0){
+                        if(key.compareTo(findKeyInWhichLeafNode.entries.get(i - 1).getKey()) == 0){
+                            keyInInerLeaf = findKeyInWhichLeafNode; ///逻辑不一定对！！
+                        }
+                        findKeyInWhichLeafNode = findKeyInWhichLeafNode.childrenNodes.get(i);
+                        break;
+                    }
+                }else if(key.compareTo(findKeyInWhichLeafNode.entries.get(i - 1).getKey()) >= 0 && key.compareTo(findKeyInWhichLeafNode.entries.get(i).getKey()) < 0) {
+                    if(key.compareTo(findKeyInWhichLeafNode.entries.get(i - 1).getKey()) == 0){
+                        keyInInerLeaf = findKeyInWhichLeafNode;
+                    }
+                    findKeyInWhichLeafNode = findKeyInWhichLeafNode.childrenNodes.get(i);
+                    break;
+                }
+            }
+        }
     }
 }

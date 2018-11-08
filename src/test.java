@@ -6,17 +6,23 @@ import java.util.Map;
 public class test {
     public static void main(String[] args){
         BPTree tree = new BPTree();
-        tree.insert("a","你好a");
+        tree.insert("a","你好a");//1
         tree.insert("b","你好b");
+        tree.insert("h","你好h");
         tree.insert("c","你好c");
+        tree.insert("n","你好j");
+        tree.insert("o","你好j");
         tree.insert("d","你好d");
         tree.insert("e","你好e");
+        tree.insert("p","你好j");
         tree.insert("f","你好f");
         tree.insert("g","你好g");
-        tree.insert("h","你好h");
+        tree.insert("l","你好j");
+        tree.insert("m","你好j");
         tree.insert("i","你好i");
-        tree.insert("j","你好j");
         tree.insert("k","你好j");
+        tree.insert("j","你好j");
+
         //tree.insert("l","你好j");
 
 //        List<Map.Entry<String,String>> entriesAfterInsert = new ArrayList<Map.Entry<String, String>>();
