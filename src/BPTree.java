@@ -179,12 +179,12 @@ public class BPTree {
                 correctNode.parent.childrenNodes.add(upIndex,left);
                 correctNode.parent.childrenNodes.add(upIndex+1,right);
                 correctNode.parent.entries.add(upIndex,new AbstractMap.SimpleEntry<String, String>(upKey,null));
-                for (int i = 0; i < (b+2)/2; i++){ //////我也不知道这个i对不对？？
+                for (int i = 0; i < (b+1)/2+1; i++){ //////我也不知道这个i对不对？？
                     correctNode.childrenNodes.get(i).parent = left;
                     left.childrenNodes.add(correctNode.childrenNodes.get(i));
                 }
-                for (int i = (b+2)/2; i < b + 1; i++){
-                    correctNode.childrenNodes.get(i).parent = right;
+                for (int i = (b+1)/2+1; i < b + 1; i++){
+                    correctNode.childrenNodes.get(i).parent = right;                ////////////////////bug!!!只在b=4时有用qwq
                     right.childrenNodes.add(correctNode.childrenNodes.get(i));
                 }
             }
@@ -224,159 +224,95 @@ public class BPTree {
         }
         //↑找到了key所在的叶节点和中间节点 5要有3个及以上，4要有2个
         //如果L至少半满，可直接删除
-        int index = 0;
+        int index = 0; //被删除的key在叶节点中的index
         for(Map.Entry<String,String> entry : findKeyInWhichLeafNode.entries) {
             if (entry.getKey().equals(key)) {
                 index = findKeyInWhichLeafNode.entries.indexOf(entry);
                 break;
             }
         }
-        if(findKeyInWhichLeafNode.entries.size() >= (b+1)/2){
-            if(keyInInerLeaf == null){
-                findKeyInWhichLeafNode.entries.remove(index);
-            }else {     //应该满足这个条件的话就不会是叶节点的最后一个吧
-                String successor;
-                if(index != findKeyInWhichLeafNode.entries.size() - 1){
-                    successor = findKeyInWhichLeafNode.entries.get(index + 1).getKey();
-                }else {
-                    successor = findKeyInWhichLeafNode.entries.get(index - 1).getKey();
-                }
-                findKeyInWhichLeafNode.entries.remove(index);
-                for (Map.Entry<String ,String> innerentry : keyInInerLeaf.entries){
-                    if(innerentry.getKey().equals(key)){
-                        int indexInner = keyInInerLeaf.entries.indexOf(innerentry);
-                        keyInInerLeaf.entries.remove(innerentry);
-                        keyInInerLeaf.entries.add(indexInner,new AbstractMap.SimpleEntry<String, String>(successor,null));
-                        break;
-                    }
-                }
-            }
+        findKeyInWhichLeafNode.entries.remove(index);
+        if(findKeyInWhichLeafNode.entries.size() >= (b+1)/2 - 1){
+            deleteInter(key,keyInInerLeaf);
+            return;
         }else {
-            BPTNode changeNode = findKeyInWhichLeafNode;
-                //向兄弟借一个
-            if(changeNode.parent != null && changeNode.parent.childrenNodes.indexOf(changeNode) < changeNode.parent.childrenNodes.size() - 1 && changeNode.parent.childrenNodes.get(changeNode.parent.childrenNodes.indexOf(changeNode) + 1).entries.size() >= (b+1)/2){
-                //像右边的兄弟节点借一个
-                changeNode.entries.remove(index);
-                BPTNode brotherNode = changeNode.parent.childrenNodes.get(changeNode.parent.childrenNodes.indexOf(changeNode) + 1);
-                String shouldBeReplaced = brotherNode.entries.get(0).getKey();
-                changeNode.entries.add(new AbstractMap.SimpleEntry<String, String>(brotherNode.entries.get(0).getKey(),brotherNode.entries.get(0).getValue()));
-                brotherNode.entries.remove(0);
-                String successor = brotherNode.entries.get(0).getKey();
-                BPTNode preBrotherInner = findInnerNode(shouldBeReplaced);
-                if(preBrotherInner != null){
-                    int indexReplaced = 0;
-                    for (Map.Entry<String ,String> innerentry : preBrotherInner.entries){
-                        if(innerentry.getKey().equals(shouldBeReplaced)){
-                            indexReplaced = preBrotherInner.entries.indexOf(innerentry);
-                            break;
-                        }
-                    }
-                    preBrotherInner.entries.remove(indexReplaced);
-                    preBrotherInner.entries.add(indexReplaced,new AbstractMap.SimpleEntry<String, String>(successor,null));
-                    //这个逻辑完不完整不一定
+            BPTNode leftNode = getLeftSibling(findKeyInWhichLeafNode);
+            BPTNode rightNode = getRightSibiling(findKeyInWhichLeafNode);
+            if(leftNode != null && leftNode.entries.size() >= (b+1)/2 ){
+                Map.Entry<String,String > o = new AbstractMap.SimpleEntry<String, String>(leftNode.entries.get(leftNode.entries.size()-1).getKey(),leftNode.entries.get(leftNode.entries.size()-1).getValue());
+                leftNode.entries.remove(leftNode.entries.size()-1);
+                findKeyInWhichLeafNode.entries.add(0,o);
+                int indexUpdate = leftNode.parent.childrenNodes.indexOf(leftNode);
+                leftNode.parent.entries.set(indexUpdate,new AbstractMap.SimpleEntry<String, String>(o.getKey(),null));
+            }else if(rightNode != null && rightNode.entries.size() >= (b+1)/2 ){
+                Map.Entry<String,String > o = new AbstractMap.SimpleEntry<String, String>(rightNode.entries.get(0).getKey(),rightNode.entries.get(0).getValue());
+                rightNode.entries.remove(0);
+                findKeyInWhichLeafNode.entries.add(o);
+                int indexUpdate = findKeyInWhichLeafNode.parent.childrenNodes.indexOf(findKeyInWhichLeafNode);
+                findKeyInWhichLeafNode.parent.entries.set(indexUpdate,new AbstractMap.SimpleEntry<String, String>(o.getKey(),null));
+            }else if(leftNode != null){
+                for(int i = 0; i < findKeyInWhichLeafNode.entries.size(); i++){
+                    leftNode.entries.add(findKeyInWhichLeafNode.entries.get(i));
                 }
-            }else if(changeNode.parent != null && changeNode.parent.childrenNodes.indexOf(changeNode) - 1 >= 0 && changeNode.parent.childrenNodes.get(changeNode.parent.childrenNodes.indexOf(changeNode) - 1).entries.size() >= (b+1)/2){
-                changeNode.entries.remove(index);
-                BPTNode brotherNode = changeNode.parent.childrenNodes.get(changeNode.parent.childrenNodes.indexOf(changeNode) - 1);
-                String shouldBeReplaced = brotherNode.entries.get(brotherNode.entries.size() - 1).getKey();
-                changeNode.entries.add(new AbstractMap.SimpleEntry<String, String>(brotherNode.entries.get(brotherNode.entries.size() - 1).getKey(),brotherNode.entries.get(brotherNode.entries.size() - 1).getValue()));
-                brotherNode.entries.remove(brotherNode.entries.size() - 1);
-                String successor = brotherNode.entries.get(brotherNode.entries.size() - 1).getKey();
-                BPTNode preBrotherInner = findInnerNode(shouldBeReplaced);
-                if(preBrotherInner != null){
-                    int indexReplaced = 0;
-                    for (Map.Entry<String ,String> innerentry : preBrotherInner.entries){
-                        if(innerentry.getKey().equals(shouldBeReplaced)){
-                            indexReplaced = preBrotherInner.entries.indexOf(innerentry);
-                            break;
-                        }
-                    }
-                    preBrotherInner.entries.remove(indexReplaced);
-                    preBrotherInner.entries.add(indexReplaced,new AbstractMap.SimpleEntry<String, String>(successor,null));
-                    //这个逻辑完不完整不一定 对不对也不一定
+                ///////////////////////有问题↓
+                leftNode.parent.childrenNodes.remove(theLeftestLeaf);//索引页的key怎么删啊！！
+            }else { ///////////////////////有问题↓
+                for(int i = 0; i < rightNode.entries.size(); i++){
+                    findKeyInWhichLeafNode.entries.add(rightNode.entries.get(i));
                 }
-            }else {
-                if(keyInInerLeaf != null){
-                    for (Map.Entry<String ,String> innerentry :keyInInerLeaf.entries){
-                        if(innerentry.getKey().equals(key)){
-                            keyInInerLeaf.entries.remove(innerentry);
-                            break;
-                        }
-                    }
-                }
-                //和兄弟合并
-
-                BPTNode deleteInnerNode = keyInInerLeaf;
-                if(changeNode.parent.childrenNodes.indexOf(changeNode) < changeNode.parent.childrenNodes.size() - 1 && changeNode.parent.childrenNodes.get(changeNode.parent.childrenNodes.indexOf(changeNode) + 1).entries.size() < (b+1)/2){
-                    //和右边兄弟合并
-                    BPTNode brotherNode = changeNode.parent.childrenNodes.get(changeNode.parent.childrenNodes.indexOf(changeNode) + 1);
-
-//                    for (Map.Entry<String ,String> entry : changeNode.entries){
-//                        if(entry.getKey().equals(key)){
-//                            int keyIndex = changeNode.entries.indexOf(entry);
-//                            changeNode.entries.remove(entry);
-//                            String successor = "";
-//                            if(keyIndex < changeNode.entries.size() - 1){
-//                                successor = changeNode.entries.get(keyIndex + 1).getKey();
-//                            }else {
-//                                successor = brotherNode.entries.get(0).getKey();
-//                            }
-//                            break;
-//                        }
-//                    }
-//                    changeNode.entries.remove(index);
-//                    for(int i = 0; i < changeNode.entries.size(); i++){
-//                        brotherNode.entries.add(i,new AbstractMap.SimpleEntry<String, String>(changeNode.entries.get(i).getKey(),changeNode.entries.get(i).getValue()));
-//                    }
-//                    if(theLeftestLeaf == changeNode) theLeftestLeaf = brotherNode;
-//                    changeNode.parent.childrenNodes.remove(changeNode);
-
-                    BPTNode mergedNode = new BPTNode(changeNode.isLeaf);
-                    mergedNode.parent = changeNode.parent;
-                    int indexOf2MergedNodes = changeNode.parent.childrenNodes.indexOf(changeNode);
-                    mergedNode.parent.childrenNodes.remove(changeNode);
-                    mergedNode.parent.childrenNodes.remove(brotherNode);
-                    mergedNode.parent.childrenNodes.add(indexOf2MergedNodes,mergedNode);
-                    mergedNode.parent.entries.remove(indexOf2MergedNodes);//不一定对呜呜呜
-                    if(changeNode == theLeftestLeaf) theLeftestLeaf = mergedNode;
-                    for(int i = 0; i < changeNode.entries.size(); i++){
-                        if(i == index) continue; //不复制要删除的key了
-                        mergedNode.entries.add(new AbstractMap.SimpleEntry<String, String>(changeNode.entries.get(i).getKey(),changeNode.entries.get(i).getValue()));
-                    }
-                    for(int i = 0; i < brotherNode.entries.size(); i++){
-                        mergedNode.entries.add(new AbstractMap.SimpleEntry<String, String>(brotherNode.entries.get(i).getKey(),brotherNode.entries.get(i).getValue()));
-                    }
-
-                }else if(changeNode.parent.childrenNodes.indexOf(changeNode) - 1 >= 0 && changeNode.parent.childrenNodes.get(changeNode.parent.childrenNodes.indexOf(changeNode) - 1).entries.size() < (b+1)/2){
-                    //左边兄弟
-                    BPTNode brotherNode = changeNode.parent.childrenNodes.get(changeNode.parent.childrenNodes.indexOf(changeNode) - 1);
-                    BPTNode mergedNode = new BPTNode(changeNode.isLeaf);
-                    mergedNode.parent = changeNode.parent;
-                    int indexOf2MergedNodes = changeNode.parent.childrenNodes.indexOf(changeNode);
-                    mergedNode.parent.childrenNodes.remove(changeNode);
-                    mergedNode.parent.childrenNodes.remove(brotherNode);
-                    mergedNode.parent.childrenNodes.add(indexOf2MergedNodes,mergedNode);
-                    mergedNode.parent.entries.remove(indexOf2MergedNodes);
-                    if(brotherNode == theLeftestLeaf) theLeftestLeaf = mergedNode;
-                    for(int i = 0; i < brotherNode.entries.size(); i++){
-                        mergedNode.entries.add(new AbstractMap.SimpleEntry<String, String>(brotherNode.entries.get(i).getKey(),brotherNode.entries.get(i).getValue()));
-                    }
-                    for(int i = 0; i < changeNode.entries.size(); i++){
-                        if(i == index) continue;
-                        mergedNode.entries.add(new AbstractMap.SimpleEntry<String, String>(changeNode.entries.get(i).getKey(),changeNode.entries.get(i).getValue()));
-                    }
-                }
-
-                BPTNode checkNode = findKeyInWhichLeafNode.parent;
-
-
+                findKeyInWhichLeafNode.parent.childrenNodes.remove(rightNode);
             }
-
+            deleteInter(key,keyInInerLeaf);
         }
 
 
     }
 
+    private BPTNode getLeftSibling(BPTNode node){
+        BPTNode searchNode = theLeftestLeaf;
+        while (searchNode.next != null){
+            if(searchNode.next == node) {
+                if(searchNode.parent == node.parent){
+                    return searchNode;
+                }
+            }
+            searchNode = searchNode.next;
+        }
+        return null;
+    }
+    private BPTNode getRightSibiling(BPTNode node){
+       if(node.next != null && node.next.parent == node.parent) {
+           return node.next;
+       }
+        return null;
+    }
+
+    private void deleteInter(String key,BPTNode innerNode){ //b=5 >=3 减完
+        int index = 0;  //key在内节点里的index
+        for(Map.Entry<String,String> entry : innerNode.entries) {
+            if (entry.getKey().equals(key)) {
+                index = innerNode.entries.indexOf(entry);
+                break;
+            }
+        }
+
+        innerNode.entries.remove(index);
+        //还要删childern
+
+        if(innerNode.childrenNodes.size() >= (b+1)/2){  //b=5 3 ?????????????
+            return;
+        }else {
+            BPTNode leftnode = getLeftSibling(innerNode);
+            BPTNode rightnode = getRightSibiling(innerNode);
+            if(leftnode != null && leftnode.childrenNodes.size() >= (b+1)/2 + 1){ //?????????
+                BPTNode o = leftnode.childrenNodes.get(leftnode.childrenNodes.size()-1);
+                leftnode.childrenNodes.remove(o);
+                innerNode.childrenNodes.add(0,o);
+                o.parent = innerNode.parent;
+            }
+        }
+
+    }
     public BPTNode findInnerNode(String key){
         BPTNode findKeyInWhichLeafNode = root;
         BPTNode keyInInerLeaf = null;
