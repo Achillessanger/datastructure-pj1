@@ -35,7 +35,9 @@ public class BPTree {
 //                System.out.print("[   ]");
 //            }
 //          // walknodes = walknodes.childrenNodes.get(0);
-
+//        for(Map.Entry<String,String> entry : root.childrenNodes.get(0).entries){
+//            System.out.print("start:"+entry.getKey()+"[[]]");
+//        }
 
         do{
             for(Map.Entry<String,String> entry : leafnodes.entries){
@@ -123,8 +125,8 @@ public class BPTree {
                 correctNode.parent = root;
                 newRoot.childrenNodes.add(correctNode);
             }
-            int leftSize = (b+1)/2;
-            int rightSize = b/2;
+            int leftSize = (b)/2;  //5-3
+            int rightSize = (b+1)/2;    //5-2
             BPTNode left = new BPTNode(false);
             BPTNode right = new BPTNode(false);
             left.parent = correctNode.parent;
@@ -179,11 +181,11 @@ public class BPTree {
                 correctNode.parent.childrenNodes.add(upIndex,left);
                 correctNode.parent.childrenNodes.add(upIndex+1,right);
                 correctNode.parent.entries.add(upIndex,new AbstractMap.SimpleEntry<String, String>(upKey,null));
-                for (int i = 0; i < (b+1)/2+1; i++){ //////我也不知道这个i对不对？？
+                for (int i = 0; i < (b+2)/2; i++){ //////我也不知道这个i对不对？？
                     correctNode.childrenNodes.get(i).parent = left;
                     left.childrenNodes.add(correctNode.childrenNodes.get(i));
                 }
-                for (int i = (b+1)/2+1; i < b + 1; i++){
+                for (int i = (b+2)/2; i < b + 1; i++){
                     correctNode.childrenNodes.get(i).parent = right;                ////////////////////bug!!!只在b=4时有用qwq
                     right.childrenNodes.add(correctNode.childrenNodes.get(i));
                 }
@@ -225,48 +227,89 @@ public class BPTree {
         //↑找到了key所在的叶节点和中间节点 5要有3个及以上，4要有2个
         //如果L至少半满，可直接删除
         int index = 0; //被删除的key在叶节点中的index
+        int min = (b+1)/2 -1;  //b=5  2
         for(Map.Entry<String,String> entry : findKeyInWhichLeafNode.entries) {
             if (entry.getKey().equals(key)) {
                 index = findKeyInWhichLeafNode.entries.indexOf(entry);
                 break;
             }
         }
+        String successor = "";
+        if(findKeyInWhichLeafNode.entries.size()-1 >= index+1){
+            successor = findKeyInWhichLeafNode.entries.get(index+1).getKey();
+        }
+
         findKeyInWhichLeafNode.entries.remove(index);
-        if(findKeyInWhichLeafNode.entries.size() >= (b+1)/2 - 1){
-            deleteInter(key,keyInInerLeaf);
+        if(keyInInerLeaf != null && !keyInInerLeaf.isLeaf) {
+            int innerIndex = 0;
+            for (Map.Entry<String, String> entry : keyInInerLeaf.entries) {
+                if (entry.getKey().equals(key)) {
+                    innerIndex = keyInInerLeaf.entries.indexOf(entry);
+                    break;
+                }
+            }
+            if (successor.equals("")) {
+                keyInInerLeaf.entries.remove(innerIndex);//逻辑不一定对我猜的
+            } else {
+                keyInInerLeaf.entries.set(innerIndex, new AbstractMap.SimpleEntry<String, String>(successor, null));
+            }
+          //  这个判断我也不知道要不要,感觉挺必要的但是模拟一种情况的时候又感觉不需要这个？？也许应该放在最后？？
+            if(successor.compareTo(keyInInerLeaf.childrenNodes.get(innerIndex+1).entries.get(0).getKey()) > 0){
+                keyInInerLeaf.entries.set(innerIndex,new AbstractMap.SimpleEntry<String, String>(keyInInerLeaf.childrenNodes.get(innerIndex+1).entries.get(0).getKey(), null));
+            }
+        }
+       // System.out.print(debug2+"  "+findKeyInWhichLeafNode.entries.get(0).getKey());
+        if(findKeyInWhichLeafNode.entries.size() >= min){
             return;
         }else {
             BPTNode leftNode = getLeftSibling(findKeyInWhichLeafNode);
             BPTNode rightNode = getRightSibiling(findKeyInWhichLeafNode);
-            if(leftNode != null && leftNode.entries.size() >= (b+1)/2 ){
+            int debug = rightNode.entries.size();
+            if(leftNode != null && leftNode.entries.size() >= min+1 ){ //向左边借key
                 Map.Entry<String,String > o = new AbstractMap.SimpleEntry<String, String>(leftNode.entries.get(leftNode.entries.size()-1).getKey(),leftNode.entries.get(leftNode.entries.size()-1).getValue());
                 leftNode.entries.remove(leftNode.entries.size()-1);
                 findKeyInWhichLeafNode.entries.add(0,o);
                 int indexUpdate = leftNode.parent.childrenNodes.indexOf(leftNode);
                 leftNode.parent.entries.set(indexUpdate,new AbstractMap.SimpleEntry<String, String>(o.getKey(),null));
-            }else if(rightNode != null && rightNode.entries.size() >= (b+1)/2 ){
+            }else if(rightNode != null && rightNode.entries.size() >= min+1 ){
                 Map.Entry<String,String > o = new AbstractMap.SimpleEntry<String, String>(rightNode.entries.get(0).getKey(),rightNode.entries.get(0).getValue());
                 rightNode.entries.remove(0);
                 findKeyInWhichLeafNode.entries.add(o);
                 int indexUpdate = findKeyInWhichLeafNode.parent.childrenNodes.indexOf(findKeyInWhichLeafNode);
                 findKeyInWhichLeafNode.parent.entries.set(indexUpdate,new AbstractMap.SimpleEntry<String, String>(o.getKey(),null));
-            }else if(leftNode != null){
+            }else if(leftNode != null){//向左合并
                 for(int i = 0; i < findKeyInWhichLeafNode.entries.size(); i++){
                     leftNode.entries.add(findKeyInWhichLeafNode.entries.get(i));
                 }
                 ///////////////////////有问题↓
-                leftNode.parent.childrenNodes.remove(theLeftestLeaf);//索引页的key怎么删啊！！
+                leftNode.next = findKeyInWhichLeafNode.next;//不一定对！
+                int deleteIndex = leftNode.parent.childrenNodes.indexOf(leftNode);
+                leftNode.parent.entries.remove(deleteIndex);
+                leftNode.parent.childrenNodes.remove(findKeyInWhichLeafNode);//索引页的key怎么删啊！！
+                rotation(leftNode.parent);
             }else { ///////////////////////有问题↓
                 for(int i = 0; i < rightNode.entries.size(); i++){
                     findKeyInWhichLeafNode.entries.add(rightNode.entries.get(i));
                 }
+                BPTNode tmpNode = theLeftestLeaf;
+                while (tmpNode.next != null){ //不一定对！
+                    if(tmpNode.next == rightNode){
+                        tmpNode.next = rightNode.next;
+                        break;
+                    }
+                    tmpNode = tmpNode.next;
+                }
+                int deleteIndex = findKeyInWhichLeafNode.parent.childrenNodes.indexOf(findKeyInWhichLeafNode);
+                findKeyInWhichLeafNode.parent.entries.remove(deleteIndex);
                 findKeyInWhichLeafNode.parent.childrenNodes.remove(rightNode);
+                rotation(findKeyInWhichLeafNode.parent);
             }
-            deleteInter(key,keyInInerLeaf);
+
         }
 
 
     }
+
 
     private BPTNode getLeftSibling(BPTNode node){
         BPTNode searchNode = theLeftestLeaf;
@@ -287,29 +330,64 @@ public class BPTree {
         return null;
     }
 
-    private void deleteInter(String key,BPTNode innerNode){ //b=5 >=3 减完
-        int index = 0;  //key在内节点里的index
-        for(Map.Entry<String,String> entry : innerNode.entries) {
-            if (entry.getKey().equals(key)) {
-                index = innerNode.entries.indexOf(entry);
-                break;
-            }
-        }
-
-        innerNode.entries.remove(index);
-        //还要删childern
-
-        if(innerNode.childrenNodes.size() >= (b+1)/2){  //b=5 3 ?????????????
+    private void rotation(BPTNode innerNode){ //b=5 children>=3 减完
+        int min = (b+1)/2 -1;  //b=5  2
+        if(innerNode.parent == null) return;
+        if(innerNode.entries.size() >= min){
             return;
         }else {
             BPTNode leftnode = getLeftSibling(innerNode);
             BPTNode rightnode = getRightSibiling(innerNode);
-            if(leftnode != null && leftnode.childrenNodes.size() >= (b+1)/2 + 1){ //?????????
-                BPTNode o = leftnode.childrenNodes.get(leftnode.childrenNodes.size()-1);
-                leftnode.childrenNodes.remove(o);
-                innerNode.childrenNodes.add(0,o);
-                o.parent = innerNode.parent;
+            if(leftnode != null && leftnode.entries.size() >= min+1){//向右转
+                int index = leftnode.parent.childrenNodes.indexOf(leftnode);
+                Map.Entry<String ,String > oup = leftnode.parent.entries.get(index);//上面的要转到右边
+                Map.Entry<String ,String > odown = leftnode.entries.get(leftnode.entries.size()-1);
+                leftnode.parent.entries.set(index,odown);
+                leftnode.entries.remove(leftnode.entries.size()-1);
+                innerNode.entries.add(0,oup);
+                innerNode.childrenNodes.add(0,leftnode.childrenNodes.get(leftnode.childrenNodes.size()-1));
+                leftnode.childrenNodes.get(leftnode.childrenNodes.size()-1).parent = innerNode;
+                leftnode.childrenNodes.remove(leftnode.childrenNodes.size()-1);
+            }else if(rightnode != null && rightnode.entries.size() >= min+1 ){
+                int index = innerNode.parent.childrenNodes.indexOf(innerNode);
+                Map.Entry<String ,String > oup = innerNode.parent.entries.get(index);
+                Map.Entry<String ,String > odown = rightnode.entries.get(0);
+                innerNode.parent.entries.set(index,odown);
+                rightnode.entries.remove(0);
+                innerNode.entries.add(oup);
+                innerNode.childrenNodes.add(rightnode.childrenNodes.get(0));
+                rightnode.childrenNodes.get(0).parent = innerNode;
+                rightnode.childrenNodes.remove(0);
+            }else if(leftnode != null){
+                int index = leftnode.parent.childrenNodes.indexOf(leftnode);
+                Map.Entry<String ,String > oup = leftnode.parent.entries.get(index);
+                leftnode.entries.add(oup);
+                leftnode.parent.entries.remove(index);
+                for(int i = 0; i < innerNode.entries.size(); i++){
+                    leftnode.entries.add(innerNode.entries.get(i));
+                }
+                for(int i = 0; i < innerNode.childrenNodes.size(); i++){
+                    leftnode.childrenNodes.add(innerNode.childrenNodes.get(i));
+                    innerNode.childrenNodes.get(i).parent = leftnode;
+                }
+                leftnode.parent.childrenNodes.remove(innerNode);
+            }else {
+                int index = innerNode.parent.childrenNodes.indexOf(innerNode);
+                Map.Entry<String ,String > oup = innerNode.parent.entries.get(index);
+                innerNode.entries.add(oup);
+                innerNode.parent.entries.remove(index);
+                for(int i = 0; i < rightnode.entries.size(); i++){
+                    innerNode.entries.add(rightnode.entries.get(i));
+                }
+                for(int i = 0; i < rightnode.childrenNodes.size(); i++){
+                    innerNode.childrenNodes.add(rightnode.childrenNodes.get(i));
+                    rightnode.childrenNodes.get(i).parent = innerNode;
+                }
+                innerNode.parent.childrenNodes.remove(rightnode);
             }
+            if(innerNode.parent == null) return;
+            innerNode = innerNode.parent;
+            rotation(innerNode);
         }
 
     }
