@@ -1,11 +1,14 @@
 import com.sun.org.apache.regexp.internal.RE;
 
 import java.math.BigInteger;
+import java.util.Stack;
 
 public class RBTree {
     private RBTNode root;
+    private RBTNode guard = new RBTNode(null,BLACK,null,null,null,null);
     private static final boolean RED = true;
     private static final boolean BLACK = false;
+    public int size = 0;
 
     public class RBTNode{
         boolean color;
@@ -16,12 +19,12 @@ public class RBTree {
         RBTNode parent;
 
         public RBTNode(String key,boolean color, RBTNode parent, RBTNode left, RBTNode right,String value) {
-           this.key = key;
-           this.color = color;
-           this.parent = parent;
-           this.left = left;
-           this.right = right;
-           this.value = value;
+            this.key = key;
+            this.color = color;
+            this.parent = parent;
+            this.left = left;
+            this.right = right;
+            this.value = value;
         }
     }
 
@@ -53,6 +56,7 @@ public class RBTree {
     }
     private void insert(RBTNode node){
         if(search(node.key) != null) return; //重复就不插入
+        size++;
         RBTNode y = null;
         RBTNode x = this.root;
         while (x != null){
@@ -139,16 +143,21 @@ public class RBTree {
             }
 
             if(node.parent != null){
-                if(node.parent.left == node) node.parent.left = successor; //处理了后继上来后和新父亲的关系
-                else node.parent.right = successor;
-            }else this.root = successor;
+                if(node.parent.left == node)
+                    node.parent.left = successor; //处理了后继上来后和新父亲的关系
+                else
+                    node.parent.right = successor;
+            }else
+                this.root = successor;
 
             child = successor.right; //后继可能有一个右儿子
             parent = successor.parent;
             color = successor.color;
-            if(parent == node) parent = successor;
+            if(parent == node)
+                parent = successor;
             else {
-                if(child != null) child.parent = parent; //如果有右儿子就把右儿子接上去
+                if(child != null)
+                    child.parent = parent; //如果有右儿子就把右儿子接上去
                 parent.left = child;
                 successor.right = node.right;
                 node.right.parent = successor;
@@ -158,7 +167,8 @@ public class RBTree {
             successor.left = node.left;
             node.left.parent = successor;
 
-            if(!color) removeFixUp(child,parent);
+            if(!color)
+                removeFixUp(child,parent);
 
             node = null;
             return;
@@ -169,6 +179,8 @@ public class RBTree {
         parent = node.parent;
         color = node.color;
 
+        if(child != null)
+            child.parent = parent;
         if(parent != null){
             if(parent.left == node) parent.left = child;
             else parent.right = child;
@@ -176,8 +188,10 @@ public class RBTree {
             this.root = child; //node是根节点
         }
 
+        // if(child == null) child = guard;///////////////////////////////////////////////////////
         if(!color) removeFixUp(child,parent); //child变成了需要调整的节点
         node = null;
+        size--;
     }
     private void removeFixUp(RBTNode node, RBTNode parent){
         RBTNode sibling;
@@ -242,12 +256,24 @@ public class RBTree {
             node.color = BLACK;
         }
     }
-    public void preorder_tree_walk(){ preorder(root); }
-    private void preorder(RBTNode T){
+    public void preorder_tree_walk(){
+        int level = 0;
+        System.out.println("================================================================");
+        preorder(root,level,0);
+        System.out.println("================================================================");
+    }
+    private void preorder(RBTNode T,int level,int order){
         if(T != null){
-            System.out.println(T.key+":"+T.value);
-            preorder(T.left);
-            preorder(T.right);
+            if(T.color == BLACK)
+                System.out.println("level="+level+"  child="+order+"  "+ T.key+":"+T.value+"(black)");
+            else if(T.color == RED)
+                System.out.println("level="+level+"  child="+order+"  "+ T.key+":"+T.value+"(red)");
+            level++;
+            preorder(T.left,level,0);
+            preorder(T.right,level,1);
+        }
+        if(T == null){
+            System.out.println("level="+ level+"  child="+order+"  null"+"(black)");
         }
     }
     public RBTNode search(String key){

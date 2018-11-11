@@ -4,9 +4,10 @@ import java.util.List;
 import java.util.Map;
 
 public class BPTree {
-    private BPTNode root;////////
+    private BPTNode root;////////我靠难道这个树对大小还有限制的吗？？？b=5的时候运行不完？？
     private BPTNode theLeftestLeaf;
-    private static int b = 5;
+    private static int b = 30;
+    public int size = 0;
     public class BPTNode{
         boolean isLeaf;
         boolean isRoot;
@@ -21,32 +22,27 @@ public class BPTree {
             childrenNodes = new ArrayList<BPTNode>();
         }
     }
-    public void treeWalk(){
-        BPTNode leafnodes = theLeftestLeaf;
-//        for(Map.Entry<String,String> entry : leafnodes.next.next.next.parent.entries){
-//            System.out.print(entry.getKey()+"!!");
-//        }
-//        BPTNode walknodes = root;
-//
-//            for(int k = 0 ; k < root.childrenNodes.size(); k++){
-//                for(int i =0;i<root.childrenNodes.get(k).entries.size();i++){
-//                    System.out.print(root.childrenNodes.get(k).entries.get(i).getKey()+" ");
-//                }
-//                System.out.print("[   ]");
-//            }
-//          // walknodes = walknodes.childrenNodes.get(0);
-        for(Map.Entry<String,String> entry : root.entries){
-            System.out.print("start:"+entry.getKey()+"[[]]");
+    public void tree_walk(){
+        int level = 0;
+        System.out.println("================================================================");
+        treeWalkprint(level,root,0);
+        System.out.println("================================================================");
+    }
+    private void treeWalkprint(int level,BPTNode node,int order){
+        if(node != null){
+            System.out.print("level="+level+"  child="+order+"  /");
+            for(int i = 0; i < node.entries.size(); i++){
+                if (node.isLeaf)
+                    System.out.print(node.entries.get(i).getKey()+":"+node.entries.get(i).getValue()+"/");
+                else
+                    System.out.print(node.entries.get(i).getKey()+"/");
+            }
+            System.out.print("\n");
+            level++;
+            for (int i = 0; i < node.childrenNodes.size(); i++){
+                treeWalkprint(level,node.childrenNodes.get(i),i);
+            }
         }
-        System.out.println("  "+root.childrenNodes.size()+"   ");
-
-        do{
-            for(Map.Entry<String,String> entry : leafnodes.entries){
-                System.out.print(entry.getKey()+" ");
-                }
-            leafnodes = leafnodes.next;
-            System.out.print("[   ]");
-        }while (leafnodes != null);
     }
 
     public String search(String key){
@@ -70,6 +66,7 @@ public class BPTree {
             theLeftestLeaf = root;
         }
         if (search(key) != null) return; //不能插入重复的
+        size++;
 
         BPTNode findWhereToInsertNode = root;
 
@@ -199,6 +196,8 @@ public class BPTree {
         //↓要从root开始找key属于哪个叶节点,并记录下如果在中间节点有的那个中间节点
         if(search(key) == null) return;//不能删除原来就没有的东西
 
+        size--;
+
         BPTNode findKeyInWhichLeafNode = root;
         BPTNode keyInInerLeaf = null;
         while (!findKeyInWhichLeafNode.isLeaf){
@@ -308,7 +307,6 @@ public class BPTree {
 
         }
 
-
     }
 
 
@@ -383,6 +381,10 @@ public class BPTree {
                 leftnode.parent.childrenNodes.remove(innerNode);
                 if(leftnode.parent == root && leftnode.parent.entries.size() == 0){
                     root = leftnode;
+                }else if(leftnode.parent.entries.size() == 0){
+                    leftnode.parent = leftnode.parent.parent;
+                    leftnode.parent.parent.childrenNodes.set(leftnode.parent.parent.childrenNodes.indexOf(leftnode.parent),leftnode);
+                    leftnode.parent.parent.childrenNodes.remove(leftnode.parent);
                 }
             }else {
                 int index = innerNode.parent.childrenNodes.indexOf(innerNode);
@@ -399,6 +401,10 @@ public class BPTree {
                 innerNode.parent.childrenNodes.remove(rightnode);
                 if(innerNode.parent == root && innerNode.parent.entries.size() == 0){ //不一定……对
                     root = innerNode;
+                }else if(innerNode.parent.entries.size() == 0){
+                    innerNode.parent = innerNode.parent.parent;  //不一定对
+                    innerNode.parent.parent.childrenNodes.set(innerNode.parent.parent.childrenNodes.indexOf(innerNode.parent),innerNode);
+                    innerNode.parent.parent.childrenNodes.remove(innerNode.parent);
                 }
             }
             if(innerNode.parent == null) return;
