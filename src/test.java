@@ -29,7 +29,8 @@ public class test {
             bpTree.insert(s,s2);
         }
         br.close();
-
+//        if( bpTree.search("limestone") == null) System.out.println("wgrwg\nefwgrg\nfeqvqef\n\n\n\n\n\n");
+//        else System.out.println( bpTree.search("limestone"));
 
         int time2 = 0;
         //delete
@@ -44,33 +45,36 @@ public class test {
 
             if(time2 == 100 && rbtree.size >= 500){
                 // rbtree.preorder_tree_walk();
-                bpTree.tree_walk();
+           //     bpTree.tree_walk();
 //                System.out.println(bpTree.size);
                 time2 = 0;
             }
         }
         brDelete.close();
 
+//        if( bpTree.search("limestone") == null) System.out.println("wgrwg\nefwgrg\nfeqvqef\n\n\n\n\n\n");
+//        else System.out.println( bpTree.search("limestone"));
+//
         //insert
-        int time3 = 0;
-        FileInputStream fisInsert = new FileInputStream("./src/3_insert.txt");
-        InputStreamReader readerInsert = new InputStreamReader(fisInsert,"GBK");
-        BufferedReader brInsert = new BufferedReader(readerInsert);
-        String sInsert = brInsert.readLine();//insert
-
-        while ((sInsert = brInsert.readLine()) != null){
-            String s2 = brInsert.readLine();
-            rbtree.insert(sInsert,s2);
-            bpTree.insert(sInsert,s2);
-            time3++;
-
-            if(time3 == 100 && rbtree.size >= 500){
-               // rbtree.preorder_tree_walk();
-                bpTree.tree_walk();
-                time3 = 0;
-            }
-        }
-        brInsert.close();
+//        int time3 = 0;
+//        FileInputStream fisInsert = new FileInputStream("./src/3_insert.txt");
+//        InputStreamReader readerInsert = new InputStreamReader(fisInsert,"GBK");
+//        BufferedReader brInsert = new BufferedReader(readerInsert);
+//        String sInsert = brInsert.readLine();//insert
+//
+//        while ((sInsert = brInsert.readLine()) != null){
+//            String s2 = brInsert.readLine();
+//            rbtree.insert(sInsert,s2);
+//            bpTree.insert(sInsert,s2);
+//            time3++;
+//
+//            if(time3 == 100 && rbtree.size >= 500){
+//               // rbtree.preorder_tree_walk();
+//                bpTree.tree_walk();
+//                time3 = 0;
+//            }
+//        }
+//        brInsert.close();
 
 
 

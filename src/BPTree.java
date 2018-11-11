@@ -184,7 +184,7 @@ public class BPTree {
                     left.childrenNodes.add(correctNode.childrenNodes.get(i));
                 }
                 for (int i = (b+2)/2; i < b + 1; i++){
-                    correctNode.childrenNodes.get(i).parent = right;                ////////////////////bug!!!只在b=4时有用qwq
+                    correctNode.childrenNodes.get(i).parent = right;                ////////////////////bug!!!只在b=4,5时有用qwq但是现在好像又都有用了……
                     right.childrenNodes.add(correctNode.childrenNodes.get(i));
                 }
             }
