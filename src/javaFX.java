@@ -79,30 +79,41 @@ public class javaFX extends Application{
 
         translate.setOnAction(event -> {
             if(isRedBlackTree){
+                long startTime = System.nanoTime();
+                RBTree.RBTNode resulttt = rbTree.search(searchtf.getText());
+                long consumingTime = System.nanoTime() - startTime;
                 if(rbTree.search(searchtf.getText()) != null){
-                    result.setText( searchtf.getText()+" : "+rbTree.search(searchtf.getText()).value.toString());
+                    result.setText( "搜索时间(ns) ： "+consumingTime+"\n"+ searchtf.getText()+" : "+rbTree.search(searchtf.getText()).value.toString());
                 }else {
                     result.setText("couldn't find this word");
                 }
             }else {
-                if(bpTree.search(searchtf.getText()) != null){
-                    result.setText( searchtf.getText()+" : "+bpTree.search(searchtf.getText()).toString());
+                long startTime = System.nanoTime();
+                String resultt = bpTree.search(searchtf.getText());
+                long consumingTime = System.nanoTime() - startTime;
+                if(resultt != null){
+                    result.setText( "搜索时间(ns) ： "+consumingTime+"\n"+searchtf.getText()+" : "+resultt);
                 }else {
                     result.setText("couldn't find this word");
                 }
             }
         });
         submit.setOnAction(event -> {
-            if(isRedBlackTree){/////////////////////////////////////////////////
-                    rbTree.inorder_tree_walk(from.getText(),too.getText());
-                    if(!"".equals(rbTree.result)){
-                        result.setText(rbTree.result);
-                    }else {
-                        result.setText("couldn't find words");
-                    }
+            if(isRedBlackTree){
+                long startTime = System.nanoTime();
+                rbTree.inorder_tree_walk(from.getText(),too.getText());
+                long consumingTime = System.nanoTime() - startTime;
+                if(!"".equals(rbTree.result)){
+                    result.setText("搜索时间(ns) ： "+consumingTime+"\n"+rbTree.result);
+                }else {
+                    result.setText("couldn't find words");
+                }
             }else {
-                if(!"".equals(bpTree.searchRange(from.getText(),too.getText()))){
-                    result.setText(bpTree.searchRange(from.getText(),too.getText()));
+                long startTime = System.nanoTime();
+                String results = bpTree.searchRange(from.getText(),too.getText());
+                long consumingTime = System.nanoTime() - startTime;
+                if(!"".equals(results)){
+                    result.setText("搜索时间(ns) ： "+consumingTime+"\n" + results);
                 }else {
                     result.setText("couldn't find words");
                 }
@@ -278,6 +289,9 @@ public class javaFX extends Application{
             @Override
             public void handle(ActionEvent event) {
                 isRedBlackTree = true;
+                from.setText("");
+                too.setText("");
+                result.setText("here shows the result");
                 try {
                     rbTree = initializeRB();
                 } catch (IOException e) {
@@ -289,6 +303,9 @@ public class javaFX extends Application{
             @Override
             public void handle(ActionEvent event) {
                 isRedBlackTree = false;
+                from.setText("");
+                too.setText("");
+                result.setText("here shows the result");
                 try {
                     bpTree = initializeBP();
                 } catch (IOException e) {
@@ -310,11 +327,23 @@ public class javaFX extends Application{
         InputStreamReader reader = new InputStreamReader(fis,"GBK");
         BufferedReader br = new BufferedReader(reader);
         String s = br.readLine();//insert
+        int time1 = 0;
+        long startTime = 0;
+        long endTime = 0;
         while ((s = br.readLine()) != null){//
 
             String s2 = br.readLine();
+//            if(time1 == 0){
+//                startTime = System.nanoTime();
+//            }
             rbtree.insert(s,s2);
             time++;
+            time1++;
+//            if(time1 == 100){    //为了记录插100次的时间 最好把下面那个循环删了！
+//                endTime = System.nanoTime();
+//                System.out.println("★★用1_initial.txt插入每100次花费(ns)："+ (endTime - startTime) );
+//                time1 = 0;
+//            }
             if(time == 100 && rbtree.size <= 500){
                 rbtree.preorder_tree_walk();
                 time = 0;
@@ -327,10 +356,19 @@ public class javaFX extends Application{
         InputStreamReader readerDelete = new InputStreamReader(fisDelete,"GBK");
         BufferedReader brDelete = new BufferedReader(readerDelete);
         String sDelete = brDelete.readLine();//insert
+        int time2 = 0;
         while ((sDelete = brDelete.readLine()) != null){
+//            if(time2 == 0){
+//                startTime = System.nanoTime();
+//            }
             rbtree.delete(sDelete);
             time++;
-
+            time2++;
+//            if(time2 == 100){    //为了记录插100次的时间 最好把下面那个循环删了！
+//                endTime = System.nanoTime();
+//                System.out.println("☆☆用2_delete.txt删除每100次花费(ns)："+ (endTime - startTime) );
+//                time2 = 0;
+//            }
             if(time == 100 && rbtree.size <= 500){
                 rbtree.preorder_tree_walk();
                 time = 0;
@@ -345,11 +383,20 @@ public class javaFX extends Application{
         BufferedReader brInsert = new BufferedReader(readerInsert);
         String sInsert = brInsert.readLine();//insert
 
+        int time3 = 0;
         while ((sInsert = brInsert.readLine()) != null){
             String s2 = brInsert.readLine();
+//            if(time3 == 0){
+//                startTime = System.nanoTime();
+//            }
             rbtree.insert(sInsert,s2);
             time++;
-
+            time3++;
+//            if(time3 == 100){    //为了记录插100次的时间 最好把下面那个循环删了！
+//                endTime = System.nanoTime();
+//                System.out.println("★★用3_insert.txt插入每100次花费(ns)："+ (endTime - startTime) );
+//                time3 = 0;
+//            }
             if(time == 100 && rbtree.size <= 500){
                 rbtree.preorder_tree_walk();
                 time = 0;
@@ -367,9 +414,15 @@ public class javaFX extends Application{
         InputStreamReader reader = new InputStreamReader(fis,"GBK");
         BufferedReader br = new BufferedReader(reader);
         String s = br.readLine();//insert
+        int time1 = 0;
+        long startTime = 0;
+        long endTime = 0;
         while ((s = br.readLine()) != null){//
 
             String s2 = br.readLine();
+            if(time1 == 0){
+                startTime = System.nanoTime();
+            }
             bptree.insert(s,s2);
             time++;
             if(time == 100 && bptree.size <= 500){
