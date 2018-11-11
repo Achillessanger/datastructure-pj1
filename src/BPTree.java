@@ -35,9 +35,10 @@ public class BPTree {
 //                System.out.print("[   ]");
 //            }
 //          // walknodes = walknodes.childrenNodes.get(0);
-//        for(Map.Entry<String,String> entry : root.childrenNodes.get(0).entries){
-//            System.out.print("start:"+entry.getKey()+"[[]]");
-//        }
+        for(Map.Entry<String,String> entry : root.entries){
+            System.out.print("start:"+entry.getKey()+"[[]]");
+        }
+        System.out.println("  "+root.childrenNodes.size()+"   ");
 
         do{
             for(Map.Entry<String,String> entry : leafnodes.entries){
@@ -240,8 +241,8 @@ public class BPTree {
         }
 
         findKeyInWhichLeafNode.entries.remove(index);
+        int innerIndex = 0;
         if(keyInInerLeaf != null && !keyInInerLeaf.isLeaf) {
-            int innerIndex = 0;
             for (Map.Entry<String, String> entry : keyInInerLeaf.entries) {
                 if (entry.getKey().equals(key)) {
                     innerIndex = keyInInerLeaf.entries.indexOf(entry);
@@ -264,19 +265,19 @@ public class BPTree {
         }else {
             BPTNode leftNode = getLeftSibling(findKeyInWhichLeafNode);
             BPTNode rightNode = getRightSibiling(findKeyInWhichLeafNode);
-            int debug = rightNode.entries.size();
+//            int debug = rightNode.entries.size();
             if(leftNode != null && leftNode.entries.size() >= min+1 ){ //向左边借key
                 Map.Entry<String,String > o = new AbstractMap.SimpleEntry<String, String>(leftNode.entries.get(leftNode.entries.size()-1).getKey(),leftNode.entries.get(leftNode.entries.size()-1).getValue());
                 leftNode.entries.remove(leftNode.entries.size()-1);
                 findKeyInWhichLeafNode.entries.add(0,o);
                 int indexUpdate = leftNode.parent.childrenNodes.indexOf(leftNode);
-                leftNode.parent.entries.set(indexUpdate,new AbstractMap.SimpleEntry<String, String>(o.getKey(),null));
+                leftNode.parent.entries.set(indexUpdate,new AbstractMap.SimpleEntry<String, String>(leftNode.entries.get(leftNode.entries.size()-1).getKey(),null));
             }else if(rightNode != null && rightNode.entries.size() >= min+1 ){
                 Map.Entry<String,String > o = new AbstractMap.SimpleEntry<String, String>(rightNode.entries.get(0).getKey(),rightNode.entries.get(0).getValue());
                 rightNode.entries.remove(0);
                 findKeyInWhichLeafNode.entries.add(o);
                 int indexUpdate = findKeyInWhichLeafNode.parent.childrenNodes.indexOf(findKeyInWhichLeafNode);
-                findKeyInWhichLeafNode.parent.entries.set(indexUpdate,new AbstractMap.SimpleEntry<String, String>(o.getKey(),null));
+                findKeyInWhichLeafNode.parent.entries.set(indexUpdate,new AbstractMap.SimpleEntry<String, String>(rightNode.entries.get(0).getKey(),null));
             }else if(leftNode != null){//向左合并
                 for(int i = 0; i < findKeyInWhichLeafNode.entries.size(); i++){
                     leftNode.entries.add(findKeyInWhichLeafNode.entries.get(i));
@@ -312,22 +313,31 @@ public class BPTree {
 
 
     private BPTNode getLeftSibling(BPTNode node){
-        BPTNode searchNode = theLeftestLeaf;
-        while (searchNode.next != null){
-            if(searchNode.next == node) {
-                if(searchNode.parent == node.parent){
-                    return searchNode;
-                }
-            }
-            searchNode = searchNode.next;
-        }
-        return null;
+        if(node.parent.childrenNodes.indexOf(node) > 0 )
+            return node.parent.childrenNodes.get(node.parent.childrenNodes.indexOf(node) - 1);
+        else
+            return null;
+//
+//        BPTNode searchNode = theLeftestLeaf;
+//        while (searchNode.next != null){
+//            if(searchNode.next == node) {
+//                if(searchNode.parent == node.parent){
+//                    return searchNode;
+//                }
+//            }
+//            searchNode = searchNode.next;
+//        }
+//        return null;
     }
     private BPTNode getRightSibiling(BPTNode node){
-       if(node.next != null && node.next.parent == node.parent) {
-           return node.next;
-       }
-        return null;
+        if(node.parent.childrenNodes.indexOf(node) < node.parent.childrenNodes.size() - 1 )
+            return node.parent.childrenNodes.get(node.parent.childrenNodes.indexOf(node) + 1);
+        else
+            return null;
+//       if(node.next != null && node.next.parent == node.parent) {
+//           return node.next;
+//       }
+//        return null;
     }
 
     private void rotation(BPTNode innerNode){ //b=5 children>=3 减完
@@ -371,6 +381,9 @@ public class BPTree {
                     innerNode.childrenNodes.get(i).parent = leftnode;
                 }
                 leftnode.parent.childrenNodes.remove(innerNode);
+                if(leftnode.parent == root && leftnode.parent.entries.size() == 0){
+                    root = leftnode;
+                }
             }else {
                 int index = innerNode.parent.childrenNodes.indexOf(innerNode);
                 Map.Entry<String ,String > oup = innerNode.parent.entries.get(index);
@@ -384,6 +397,9 @@ public class BPTree {
                     rightnode.childrenNodes.get(i).parent = innerNode;
                 }
                 innerNode.parent.childrenNodes.remove(rightnode);
+                if(innerNode.parent == root && innerNode.parent.entries.size() == 0){ //不一定……对
+                    root = innerNode;
+                }
             }
             if(innerNode.parent == null) return;
             innerNode = innerNode.parent;

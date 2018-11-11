@@ -8,8 +8,8 @@ public class test {
         BPTree tree = new BPTree();
         String[] r = {"c","g","l","n","q","m","t","d","p","r","h","j","k","i","f","a","b"};//17
         String[] x = {"c","n","g","a","h","e","k","q","m","f","w","l","t","z","d","p","r","x","y","s","b"};
-        for(int i = 0; i < x.length; i++){
-            tree.insert(x[i],x[i]);
+        for(int i = 0; i < r.length; i++){
+            tree.insert(r[i],r[i]);
         }
 //
 //        tree.insert("c","你好j");
@@ -32,9 +32,10 @@ public class test {
 //        tree.insert("1",null);
 //        tree.insert("12",null);
 //        tree.insert("2",null);
- tree.delete("a");
-        tree.delete("b");
-     tree.delete("c");
+ tree.delete("i");
+        tree.delete("l");
+     tree.delete("j");
+//        tree.delete("b");
 
         //tree.insert("l","你好j");
 
