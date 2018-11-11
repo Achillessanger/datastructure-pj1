@@ -77,7 +77,37 @@ public class javaFX extends Application{
         result.setMaxWidth(400);
         result.setEditable(false);
 
-
+        translate.setOnAction(event -> {
+            if(isRedBlackTree){
+                if(rbTree.search(searchtf.getText()) != null){
+                    result.setText( searchtf.getText()+" : "+rbTree.search(searchtf.getText()).value.toString());
+                }else {
+                    result.setText("couldn't find this word");
+                }
+            }else {
+                if(bpTree.search(searchtf.getText()) != null){
+                    result.setText( searchtf.getText()+" : "+bpTree.search(searchtf.getText()).toString());
+                }else {
+                    result.setText("couldn't find this word");
+                }
+            }
+        });
+        submit.setOnAction(event -> {
+            if(isRedBlackTree){/////////////////////////////////////////////////
+                    rbTree.inorder_tree_walk(from.getText(),too.getText());
+                    if(!"".equals(rbTree.result)){
+                        result.setText(rbTree.result);
+                    }else {
+                        result.setText("couldn't find words");
+                    }
+            }else {
+                if(!"".equals(bpTree.searchRange(from.getText(),too.getText()))){
+                    result.setText(bpTree.searchRange(from.getText(),too.getText()));
+                }else {
+                    result.setText("couldn't find words");
+                }
+            }
+        });
 
         rightPane.setPadding(new Insets(15,25,15,10));
         rightdown.getChildren().addAll(LOOKUP,lay1,lay2);
@@ -129,10 +159,22 @@ public class javaFX extends Application{
                     try {
                         while ((s = br.readLine()) != null){//
                             String s2 = br.readLine();
-                            if (isRedBlackTree)
+                            if (isRedBlackTree){
                                 rbTree.insert(s,s2);
-                            else
+                                time++;
+                                if(time == 100 && rbTree.size <= 500){
+                                    rbTree.preorder_tree_walk();
+                                    time = 0;
+                                }
+                            } else{
                                 bpTree.insert(s,s2);
+                                time++;
+                                if(time == 100 && bpTree.size <= 500){
+                                    bpTree.tree_walk();
+                                    time = 0;
+                                }
+                            }
+
 
                         }
                     } catch (IOException e) {
@@ -144,8 +186,29 @@ public class javaFX extends Application{
                         e.printStackTrace();
                     }
                 }else if("DELETE".equals(s)){
-                    
+                    try {
+                        while ((s = br.readLine()) != null){
+                            if(isRedBlackTree){
+                                rbTree.delete(s);
+                                time++;
+                                if(time == 100 && rbTree.size <= 500){
+                                    rbTree.preorder_tree_walk();
+                                    time = 0;
+                                }
+                            }else {
+                                bpTree.delete(s);
+                                time++;
+                                if(time == 100 && bpTree.size <= 500){
+                                    bpTree.tree_walk();
+                                    time = 0;
+                                }
+                            }
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
+                path.setText("finished");
 
             }
         });
@@ -187,6 +250,29 @@ public class javaFX extends Application{
         primaryStage.show();
 
         rbTree = initializeRB();
+
+        add.setOnAction(event -> {
+            if(isRedBlackTree){
+                rbTree.insert(englishtf.getText(),chinesetf.getText());
+            }else {
+                bpTree.insert(englishtf.getText(),chinesetf.getText());
+            }
+            englishtf.setText("");
+            chinesetf.setText("");
+        });
+        delete.setOnAction(event -> {
+            if(!"".equals(englishtf.getText())){
+                if(isRedBlackTree){
+                    rbTree.delete(englishtf.getText());
+                }else {
+                    bpTree.delete(englishtf.getText());
+                }
+                englishtf.setText("");
+                chinesetf.setText("");
+            }
+
+        });
+
 
         rbbt.setOnAction(new EventHandler<ActionEvent>() {
             @Override

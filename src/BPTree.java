@@ -26,7 +26,7 @@ public class BPTree {
         int level = 0;
         System.out.println("================================================================");
         treeWalkprint(level,root,0);
-        System.out.println("================================================================");
+        System.out.println("================================================================\n\n\n");
     }
     private void treeWalkprint(int level,BPTNode node,int order){
         if(node != null){
@@ -57,6 +57,22 @@ public class BPTree {
         }while (leafnodes != null);
 
         return null;
+    }
+    public String searchRange(String from,String to){
+        BPTNode leafnodes = theLeftestLeaf;
+        String result = "";
+        do{
+            for(Map.Entry<String,String> entry : leafnodes.entries){
+                if(entry.getKey().compareTo(to) > 0)
+                    return result;
+                if(entry.getKey().compareTo(from) >= 0 && entry.getKey().compareTo(to) <= 0) {
+                    result += entry.getKey()+" : "+entry.getValue()+"\n";
+                }
+            }
+            leafnodes = leafnodes.next;
+
+        }while (leafnodes != null);
+        return result;
     }
 
     public void insert(String key, String chinese){

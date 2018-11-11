@@ -260,7 +260,7 @@ public class RBTree {
         int level = 0;
         System.out.println("================================================================");
         preorder(root,level,0);
-        System.out.println("================================================================");
+        System.out.println("================================================================\n\n\n");
     }
     private void preorder(RBTNode T,int level,int order){
         if(T != null){
@@ -287,5 +287,36 @@ public class RBTree {
         }
         return x;
 
+    }
+    public String result = "";
+    public void inorder_tree_walk( String from, String to){
+        result = "";
+        inorder(root,from,to);
+    }
+    private void inorder(RBTNode T, String from, String to){
+        if(T != null){
+            if(T.key.compareTo(from) < 0){
+            }else {
+                inorder(T.left,from,to);
+            }
+            if(T.key.compareTo(from)>=0 && T.key.compareTo(to)<=0)
+                result += T.key+" : "+T.value+"\n";
+            if(T.key.compareTo(to) > 0){
+            }else {
+                inorder(T.right,from,to);
+            }
+
+        }
+    }
+
+    public String searchRange(String from, String to){
+        String result = "";
+        RBTNode x = root;
+        while (x != null){
+            if(x.key.compareTo(from)>=0 && x.key.compareTo(to)<=0){
+
+            }
+        }
+        return result;
     }
 }
