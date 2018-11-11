@@ -420,11 +420,17 @@ public class javaFX extends Application{
         while ((s = br.readLine()) != null){//
 
             String s2 = br.readLine();
-            if(time1 == 0){
-                startTime = System.nanoTime();
-            }
+//            if(time1 == 0){
+//                startTime = System.nanoTime();
+//            }
             bptree.insert(s,s2);
             time++;
+            time1++;
+//            if(time1 == 100){    //为了记录插100次的时间 最好把下面那个循环删了！
+//                endTime = System.nanoTime();
+//                System.out.println("★★用1_initial.txt插入每100次花费(ns)："+ (endTime - startTime) );
+//                time1 = 0;
+//            }
             if(time == 100 && bptree.size <= 500){
                 bptree.tree_walk();
                 time = 0;
@@ -437,10 +443,19 @@ public class javaFX extends Application{
         InputStreamReader readerDelete = new InputStreamReader(fisDelete,"GBK");
         BufferedReader brDelete = new BufferedReader(readerDelete);
         String sDelete = brDelete.readLine();//insert
+        int time2 = 0;
         while ((sDelete = brDelete.readLine()) != null){
+//            if(time2 == 0){
+//                startTime = System.nanoTime();
+//            }
             bptree.delete(sDelete);
             time++;
-
+            time2++;
+//            if(time2 == 100){    //为了记录插100次的时间 最好把下面那个循环删了！
+//                endTime = System.nanoTime();
+//                System.out.println("☆☆用2_delete.txt删除每100次花费(ns)："+ (endTime - startTime) );
+//                time2 = 0;
+//            }
             if(time == 100 && bptree.size <= 500){
                 bptree.tree_walk();
                 time = 0;
@@ -455,11 +470,20 @@ public class javaFX extends Application{
         BufferedReader brInsert = new BufferedReader(readerInsert);
         String sInsert = brInsert.readLine();//insert
 
+        int time3 = 0;
         while ((sInsert = brInsert.readLine()) != null){
             String s2 = brInsert.readLine();
+//            if(time3 == 0){
+//                startTime = System.nanoTime();
+//            }
             bptree.insert(sInsert,s2);
             time++;
-
+            time3++;
+//            if(time3 == 100){    //为了记录插100次的时间 最好把下面那个循环删了！
+//                endTime = System.nanoTime();
+//                System.out.println("★★用3_insert.txt插入每100次花费(ns)："+ (endTime - startTime) );
+//                time3 = 0;
+//            }
             if(time == 100 && bptree.size <= 500){
                 bptree.tree_walk();
                 time = 0;
