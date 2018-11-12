@@ -4,7 +4,7 @@ import java.math.BigInteger;
 import java.util.Stack;
 
 public class RBTree {
-    private RBTNode root;
+    public RBTNode root;
     private RBTNode guard = new RBTNode(null,BLACK,null,null,null,null);
     private static final boolean RED = true;
     private static final boolean BLACK = false;
@@ -133,6 +133,7 @@ public class RBTree {
         if((node = search(root,key)) != null) delete(node);
     }
     private void delete(RBTNode node){
+        size--;
         RBTNode child, parent;
         boolean color;
 
@@ -191,7 +192,6 @@ public class RBTree {
         // if(child == null) child = guard;///////////////////////////////////////////////////////
         if(!color) removeFixUp(child,parent); //child变成了需要调整的节点
         node = null;
-        size--;
     }
     private void removeFixUp(RBTNode node, RBTNode parent){
         RBTNode sibling;

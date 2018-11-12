@@ -6,7 +6,7 @@ import java.util.Map;
 public class BPTree {
     private BPTNode root;////////我靠难道这个树对大小还有限制的吗？？？b=5的时候运行不完？？
     private BPTNode theLeftestLeaf;
-    private static int b = 5;
+    private static int b = 20;
     public int size = 0;
     public class BPTNode{
         boolean isLeaf;
@@ -279,10 +279,6 @@ public class BPTree {
 
     public void delete(String key){
         //↓要从root开始找key属于哪个叶节点,并记录下如果在中间节点有的那个中间节点
-//        if(search(key) == null) return;//不能删除原来就没有的东西
-
-//        size--;
-
         BPTNode findKeyInWhichLeafNode = root;
         BPTNode keyInInerLeaf = null;
         while (!findKeyInWhichLeafNode.isLeaf){
@@ -310,28 +306,27 @@ public class BPTree {
             }
         }
         boolean ifAlreadyHave = false;
+        int index = 0; //被删除的key在叶节点中的index
         for(Map.Entry<String,String> entry : findKeyInWhichLeafNode.entries){
             if(entry.getKey().compareTo(key) == 0){
-                ifAlreadyHave = true;
-            }
-        }
-        if(!ifAlreadyHave)
-            return;
-        else
-            size--;
-        //↑找到了key所在的叶节点和中间节点 5要有3个及以上，4要有2个
-        //如果L至少半满，可直接删除
-        int index = 0; //被删除的key在叶节点中的index
-        int min = (b+1)/2 -1;  //b=5  2
-        for(Map.Entry<String,String> entry : findKeyInWhichLeafNode.entries) {
-            if (entry.getKey().equals(key)) {
                 index = findKeyInWhichLeafNode.entries.indexOf(entry);
+                ifAlreadyHave = true;
                 break;
             }
         }
+        if(!ifAlreadyHave){
+            return;
+        } else
+            size--;
+        //↑找到了key所在的叶节点和中间节点 5要有3个及以上，4要有2个
+        //如果L至少半满，可直接删除
+
+        int min = (b+1)/2 -1;  //b=5  2
         String successor = "";
         if(findKeyInWhichLeafNode.entries.size()-1 >= index+1){
             successor = findKeyInWhichLeafNode.entries.get(index+1).getKey();
+        }else {
+            successor = findKeyInWhichLeafNode.entries.get(index - 1).getKey();
         }
 
         findKeyInWhichLeafNode.entries.remove(index);
@@ -343,29 +338,30 @@ public class BPTree {
                     break;
                 }
             }
-            if (successor.equals("")) {
-                keyInInerLeaf.entries.remove(innerIndex);//逻辑不一定对我猜的
-            } else {
+
                 keyInInerLeaf.entries.set(innerIndex, new AbstractMap.SimpleEntry<String, String>(successor, null));
-            }
-          //  这个判断我也不知道要不要,感觉挺必要的但是模拟一种情况的时候又感觉不需要这个？？也许应该放在最后？？
+
+          //  这个判断我也不知道要不要,感觉挺必要的但是模拟一种情况的时候又感觉不需要这个？？
             if(successor.compareTo(keyInInerLeaf.childrenNodes.get(innerIndex+1).entries.get(0).getKey()) > 0){
                 keyInInerLeaf.entries.set(innerIndex,new AbstractMap.SimpleEntry<String, String>(keyInInerLeaf.childrenNodes.get(innerIndex+1).entries.get(0).getKey(), null));
             }
+            if(successor.compareTo(keyInInerLeaf.childrenNodes.get(innerIndex).entries.get(keyInInerLeaf.childrenNodes.get(innerIndex).entries.size()-1).getKey()) <= 0){
+                keyInInerLeaf.entries.set(innerIndex,new AbstractMap.SimpleEntry<String, String>(keyInInerLeaf.childrenNodes.get(innerIndex).entries.get(keyInInerLeaf.childrenNodes.get(innerIndex).entries.size()-1).getKey(),null));
+            }
         }
-       // System.out.print(debug2+"  "+findKeyInWhichLeafNode.entries.get(0).getKey());
+
         if(findKeyInWhichLeafNode.entries.size() >= min){
             return;
         }else {
             BPTNode leftNode = getLeftSibling(findKeyInWhichLeafNode);
             BPTNode rightNode = getRightSibiling(findKeyInWhichLeafNode);
-//            int debug = rightNode.entries.size();
+
             if(leftNode != null && leftNode.entries.size() >= min+1 ){ //向左边借key
                 Map.Entry<String,String > o = new AbstractMap.SimpleEntry<String, String>(leftNode.entries.get(leftNode.entries.size()-1).getKey(),leftNode.entries.get(leftNode.entries.size()-1).getValue());
                 leftNode.entries.remove(leftNode.entries.size()-1);
                 findKeyInWhichLeafNode.entries.add(0,o);
                 int indexUpdate = leftNode.parent.childrenNodes.indexOf(leftNode);
-                leftNode.parent.entries.set(indexUpdate,new AbstractMap.SimpleEntry<String, String>(leftNode.entries.get(leftNode.entries.size()-1).getKey(),null));
+                leftNode.parent.entries.set(indexUpdate,new AbstractMap.SimpleEntry<String, String>(o.getKey(),null));
             }else if(rightNode != null && rightNode.entries.size() >= min+1 ){
                 Map.Entry<String,String > o = new AbstractMap.SimpleEntry<String, String>(rightNode.entries.get(0).getKey(),rightNode.entries.get(0).getValue());
                 rightNode.entries.remove(0);
@@ -401,7 +397,6 @@ public class BPTree {
             }
 
         }
-
     }
 
 
@@ -410,27 +405,12 @@ public class BPTree {
             return node.parent.childrenNodes.get(node.parent.childrenNodes.indexOf(node) - 1);
         else
             return null;
-//
-//        BPTNode searchNode = theLeftestLeaf;
-//        while (searchNode.next != null){
-//            if(searchNode.next == node) {
-//                if(searchNode.parent == node.parent){
-//                    return searchNode;
-//                }
-//            }
-//            searchNode = searchNode.next;
-//        }
-//        return null;
     }
     private BPTNode getRightSibiling(BPTNode node){
         if(node.parent.childrenNodes.indexOf(node) < node.parent.childrenNodes.size() - 1 )
             return node.parent.childrenNodes.get(node.parent.childrenNodes.indexOf(node) + 1);
         else
             return null;
-//       if(node.next != null && node.next.parent == node.parent) {
-//           return node.next;
-//       }
-//        return null;
     }
 
     private void rotation(BPTNode innerNode){ //b=5 children>=3 减完
