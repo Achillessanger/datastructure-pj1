@@ -6,7 +6,7 @@ import java.util.Map;
 public class BPTree {
     private BPTNode root;////////我靠难道这个树对大小还有限制的吗？？？b=5的时候运行不完？？
     private BPTNode theLeftestLeaf;
-    private static int b = 20;
+    private static int b = 5;
     public int size = 0;
     public class BPTNode{
         boolean isLeaf;
