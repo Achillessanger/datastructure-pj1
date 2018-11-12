@@ -330,6 +330,7 @@ public class javaFX extends Application{
         int time1 = 0;
         long startTime = 0;
         long endTime = 0;
+//        System.out.println("1(ns):");
         while ((s = br.readLine()) != null){//
 
             String s2 = br.readLine();
@@ -338,10 +339,10 @@ public class javaFX extends Application{
 //            }
             rbtree.insert(s,s2);
             time++;
-            time1++;
+//            time1++;
 //            if(time1 == 100){    //为了记录插100次的时间 最好把下面那个循环删了！
 //                endTime = System.nanoTime();
-//                System.out.println("★★用1_initial.txt插入每100次花费(ns)："+ (endTime - startTime) );
+//                System.out.print((endTime - startTime) +",");
 //                time1 = 0;
 //            }
             if(time == 100 && rbtree.size <= 500){
@@ -349,6 +350,8 @@ public class javaFX extends Application{
                 time = 0;
             }
         }
+ //       System.out.println();
+      //  System.out.println(rbtree.size);
         br.close();
 
         //delete
@@ -357,16 +360,17 @@ public class javaFX extends Application{
         BufferedReader brDelete = new BufferedReader(readerDelete);
         String sDelete = brDelete.readLine();//insert
         int time2 = 0;
+    //    System.out.println("2(ns):");
         while ((sDelete = brDelete.readLine()) != null){
 //            if(time2 == 0){
 //                startTime = System.nanoTime();
 //            }
             rbtree.delete(sDelete);
             time++;
-            time2++;
+//            time2++;
 //            if(time2 == 100){    //为了记录插100次的时间 最好把下面那个循环删了！
 //                endTime = System.nanoTime();
-//                System.out.println("☆☆用2_delete.txt删除每100次花费(ns)："+ (endTime - startTime) );
+//                System.out.print((endTime - startTime)+"," );
 //                time2 = 0;
 //            }
             if(time == 100 && rbtree.size <= 500){
@@ -375,6 +379,7 @@ public class javaFX extends Application{
             }
         }
         brDelete.close();
+ //       System.out.println();
 
 //        insert
 
@@ -384,6 +389,7 @@ public class javaFX extends Application{
         String sInsert = brInsert.readLine();//insert
 
         int time3 = 0;
+     //   System.out.println("3(ns):");
         while ((sInsert = brInsert.readLine()) != null){
             String s2 = brInsert.readLine();
 //            if(time3 == 0){
@@ -391,10 +397,10 @@ public class javaFX extends Application{
 //            }
             rbtree.insert(sInsert,s2);
             time++;
-            time3++;
+//            time3++;
 //            if(time3 == 100){    //为了记录插100次的时间 最好把下面那个循环删了！
 //                endTime = System.nanoTime();
-//                System.out.println("★★用3_insert.txt插入每100次花费(ns)："+ (endTime - startTime) );
+//                System.out.print((endTime - startTime)+"," );
 //                time3 = 0;
 //            }
             if(time == 100 && rbtree.size <= 500){
@@ -402,6 +408,7 @@ public class javaFX extends Application{
                 time = 0;
             }
         }
+      //  System.out.println();
         brInsert.close();
 
         return rbtree;
@@ -417,6 +424,7 @@ public class javaFX extends Application{
         int time1 = 0;
         long startTime = 0;
         long endTime = 0;
+     //   System.out.println("用1_initial.txt插入每100个数据所用时间(ns):");
         while ((s = br.readLine()) != null){//
 
             String s2 = br.readLine();
@@ -425,10 +433,10 @@ public class javaFX extends Application{
 //            }
             bptree.insert(s,s2);
             time++;
-            time1++;
+//            time1++;
 //            if(time1 == 100){    //为了记录插100次的时间 最好把下面那个循环删了！
 //                endTime = System.nanoTime();
-//                System.out.println("★★用1_initial.txt插入每100次花费(ns)："+ (endTime - startTime) );
+//                System.out.print( (endTime - startTime)+"," );
 //                time1 = 0;
 //            }
             if(time == 100 && bptree.size <= 500){
@@ -436,6 +444,7 @@ public class javaFX extends Application{
                 time = 0;
             }
         }
+
         br.close();
 
         //delete
@@ -444,16 +453,17 @@ public class javaFX extends Application{
         BufferedReader brDelete = new BufferedReader(readerDelete);
         String sDelete = brDelete.readLine();//insert
         int time2 = 0;
+       // System.out.println("用2_delete.txt删除每100个数据所用时间(ns):");
         while ((sDelete = brDelete.readLine()) != null){
 //            if(time2 == 0){
 //                startTime = System.nanoTime();
 //            }
             bptree.delete(sDelete);
             time++;
-            time2++;
+//            time2++;
 //            if(time2 == 100){    //为了记录插100次的时间 最好把下面那个循环删了！
 //                endTime = System.nanoTime();
-//                System.out.println("☆☆用2_delete.txt删除每100次花费(ns)："+ (endTime - startTime) );
+//                System.out.print((endTime - startTime)+"," );
 //                time2 = 0;
 //            }
             if(time == 100 && bptree.size <= 500){
@@ -461,6 +471,8 @@ public class javaFX extends Application{
                 time = 0;
             }
         }
+       // System.out.println();
+      //  System.out.println(bptree.size+"\n\n\n\n\n\n\n\n\n");
         brDelete.close();
 
 //        insert
@@ -471,6 +483,7 @@ public class javaFX extends Application{
         String sInsert = brInsert.readLine();//insert
 
         int time3 = 0;
+      //  System.out.println("用3_insert.txt插入每100个数据所用时间(ns):");
         while ((sInsert = brInsert.readLine()) != null){
             String s2 = brInsert.readLine();
 //            if(time3 == 0){
@@ -478,10 +491,10 @@ public class javaFX extends Application{
 //            }
             bptree.insert(sInsert,s2);
             time++;
-            time3++;
+//            time3++;
 //            if(time3 == 100){    //为了记录插100次的时间 最好把下面那个循环删了！
 //                endTime = System.nanoTime();
-//                System.out.println("★★用3_insert.txt插入每100次花费(ns)："+ (endTime - startTime) );
+//                System.out.print( (endTime - startTime)+"," );
 //                time3 = 0;
 //            }
             if(time == 100 && bptree.size <= 500){
@@ -489,6 +502,7 @@ public class javaFX extends Application{
                 time = 0;
             }
         }
+      //  System.out.println("");
         brInsert.close();
 
         return bptree;

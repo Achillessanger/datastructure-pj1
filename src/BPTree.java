@@ -6,11 +6,10 @@ import java.util.Map;
 public class BPTree {
     private BPTNode root;////////我靠难道这个树对大小还有限制的吗？？？b=5的时候运行不完？？
     private BPTNode theLeftestLeaf;
-    private static int b = 30;
+    private static int b = 5;
     public int size = 0;
     public class BPTNode{
         boolean isLeaf;
-        boolean isRoot;
         BPTNode next;
         BPTNode parent;
         List<BPTNode> childrenNodes;
@@ -21,6 +20,7 @@ public class BPTree {
             entries = new ArrayList<Map.Entry<String, String>>();
             childrenNodes = new ArrayList<BPTNode>();
         }
+
     }
     public void tree_walk(){
         int level = 0;
@@ -45,7 +45,7 @@ public class BPTree {
         }
     }
 
-    public String search(String key){
+    public String search2(String key){
         BPTNode leafnodes = theLeftestLeaf;
         do{
             for(Map.Entry<String,String> entry : leafnodes.entries){
@@ -54,24 +54,84 @@ public class BPTree {
                 }
             }
             leafnodes = leafnodes.next;
+
         }while (leafnodes != null);
 
         return null;
     }
-    public String searchRange(String from,String to){
-        BPTNode leafnodes = theLeftestLeaf;
-        String result = "";
-        do{
-            for(Map.Entry<String,String> entry : leafnodes.entries){
-                if(entry.getKey().compareTo(to) > 0)
-                    return result;
-                if(entry.getKey().compareTo(from) >= 0 && entry.getKey().compareTo(to) <= 0) {
-                    result += entry.getKey()+" : "+entry.getValue()+"\n";
+    public String search(String key) {
+        BPTNode findWhereToInsertNode = root;
+        while (!findWhereToInsertNode.isLeaf) { //////这个判断不一定对，不知道是不是null
+            for (int i = 0; i <= findWhereToInsertNode.entries.size(); i++){
+                if(i == 0){
+                    if(key.compareTo(findWhereToInsertNode.entries.get(i).getKey()) < 0){ //比最左边数小
+                        findWhereToInsertNode = findWhereToInsertNode.childrenNodes.get(i);
+                        break;
+                    }
+                }
+                else if(i == findWhereToInsertNode.entries.size()){
+                    if(key.compareTo(findWhereToInsertNode.entries.get(i - 1).getKey()) >= 0){
+                        findWhereToInsertNode = findWhereToInsertNode.childrenNodes.get(i);
+                        break;
+                    }
+                }
+                else if(key.compareTo(findWhereToInsertNode.entries.get(i - 1).getKey()) >= 0 && key.compareTo(findWhereToInsertNode.entries.get(i).getKey()) < 0){
+                    findWhereToInsertNode = findWhereToInsertNode.childrenNodes.get(i);
+                    break;
                 }
             }
-            leafnodes = leafnodes.next;
+        }
+        for(Map.Entry<String,String> entry : findWhereToInsertNode.entries){
+            if(entry.getKey().compareTo(key) == 0){
+                return entry.getValue();
+            }
+        }
+        return null;
+    }
 
-        }while (leafnodes != null);
+    public BPTNode searchNode(String key) {
+        BPTNode findWhereToInsertNode = root;
+        while (!findWhereToInsertNode.isLeaf) { //////这个判断不一定对，不知道是不是null
+            for (int i = 0; i <= findWhereToInsertNode.entries.size(); i++){
+                if(i == 0){
+                    if(key.compareTo(findWhereToInsertNode.entries.get(i).getKey()) < 0){ //比最左边数小
+                        findWhereToInsertNode = findWhereToInsertNode.childrenNodes.get(i);
+                        break;
+                    }
+                }
+                else if(i == findWhereToInsertNode.entries.size()){
+                    if(key.compareTo(findWhereToInsertNode.entries.get(i - 1).getKey()) >= 0){
+                        findWhereToInsertNode = findWhereToInsertNode.childrenNodes.get(i);
+                        break;
+                    }
+                }
+                else if(key.compareTo(findWhereToInsertNode.entries.get(i - 1).getKey()) >= 0 && key.compareTo(findWhereToInsertNode.entries.get(i).getKey()) < 0){
+                    findWhereToInsertNode = findWhereToInsertNode.childrenNodes.get(i);
+                    break;
+                }
+            }
+        }
+        return findWhereToInsertNode;
+    }
+
+    public String searchRange(String from,String to){
+        BPTNode fromnode = searchNode(from);
+        BPTNode tonode = searchNode(to);
+        String result = "";
+        if(from.compareTo(to) <= 0){
+            BPTNode leafnodes = fromnode;
+            do{
+                for(Map.Entry<String,String> entry : leafnodes.entries){
+                    if(entry.getKey().compareTo(to) > 0)
+                        return result;
+                    if(entry.getKey().compareTo(from) >= 0 && entry.getKey().compareTo(to) <= 0) {
+                        result += entry.getKey()+" : "+entry.getValue()+"\n";
+                    }
+                }
+                leafnodes = leafnodes.next;
+
+            }while (leafnodes != null || leafnodes.next == tonode.next);
+        }
         return result;
     }
 
@@ -81,8 +141,8 @@ public class BPTree {
             root = creatRoot;
             theLeftestLeaf = root;
         }
-        if (search(key) != null) return; //不能插入重复的
-        size++;
+//        if (search(key) != null) return; //不能插入重复的
+//        size++;
 
         BPTNode findWhereToInsertNode = root;
 
@@ -95,18 +155,27 @@ public class BPTree {
                     }
                 }
                 else if(i == findWhereToInsertNode.entries.size()){
-                    if(key.compareTo(findWhereToInsertNode.entries.get(i - 1).getKey()) > 0){
+                    if(key.compareTo(findWhereToInsertNode.entries.get(i - 1).getKey()) >= 0){
                         findWhereToInsertNode = findWhereToInsertNode.childrenNodes.get(i);
                         break;
                     }
                 }
-                else if(key.compareTo(findWhereToInsertNode.entries.get(i - 1).getKey()) > 0 && key.compareTo(findWhereToInsertNode.entries.get(i).getKey()) < 0){
+                else if(key.compareTo(findWhereToInsertNode.entries.get(i - 1).getKey()) >= 0 && key.compareTo(findWhereToInsertNode.entries.get(i).getKey()) < 0){
                     findWhereToInsertNode = findWhereToInsertNode.childrenNodes.get(i);
                     break;
                 }
             }
         }
         //↑找到了插入的叶节点
+
+        for(int i = 0; i < findWhereToInsertNode.entries.size(); i++){
+            if(key.compareTo(findWhereToInsertNode.entries.get(i).getKey()) == 0)   //如果重复就不插入了
+                return;
+        }
+
+        size++;
+
+        //↓插入
         if(findWhereToInsertNode.entries.size() == 0){//但是每个叶节点都应该有东西的吧……
             findWhereToInsertNode.entries.add(new AbstractMap.SimpleEntry<String, String>(key,chinese));
         }
@@ -210,9 +279,9 @@ public class BPTree {
 
     public void delete(String key){
         //↓要从root开始找key属于哪个叶节点,并记录下如果在中间节点有的那个中间节点
-        if(search(key) == null) return;//不能删除原来就没有的东西
+//        if(search(key) == null) return;//不能删除原来就没有的东西
 
-        size--;
+//        size--;
 
         BPTNode findKeyInWhichLeafNode = root;
         BPTNode keyInInerLeaf = null;
@@ -240,6 +309,16 @@ public class BPTree {
                 }
             }
         }
+        boolean ifAlreadyHave = false;
+        for(Map.Entry<String,String> entry : findKeyInWhichLeafNode.entries){
+            if(entry.getKey().compareTo(key) == 0){
+                ifAlreadyHave = true;
+            }
+        }
+        if(!ifAlreadyHave)
+            return;
+        else
+            size--;
         //↑找到了key所在的叶节点和中间节点 5要有3个及以上，4要有2个
         //如果L至少半满，可直接删除
         int index = 0; //被删除的key在叶节点中的index
