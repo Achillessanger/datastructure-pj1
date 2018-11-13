@@ -45,19 +45,14 @@ public class BPTree {
         }
     }
 
-    public String search2(String key){
-        BPTNode leafnodes = theLeftestLeaf;
+    public int search2(){
+        BPTNode leafnodes = theLeftestLeaf;         ///////////theleftest没变
+        int total = 0;
         do{
-            for(Map.Entry<String,String> entry : leafnodes.entries){
-                if(entry.getKey().compareTo(key) == 0){
-                    return entry.getValue();
-                }
-            }
+            total += leafnodes.entries.size();
             leafnodes = leafnodes.next;
-
         }while (leafnodes != null);
-
-        return null;
+        return total;
     }
     public String search(String key) {
         BPTNode findWhereToInsertNode = root;
@@ -141,8 +136,6 @@ public class BPTree {
             root = creatRoot;
             theLeftestLeaf = root;
         }
-//        if (search(key) != null) return; //不能插入重复的
-//        size++;
 
         BPTNode findWhereToInsertNode = root;
 
@@ -216,20 +209,27 @@ public class BPTree {
             right.parent = correctNode.parent;
             left.next = right;
             if(correctNode.next != null) right.next = correctNode.next;
-            if(correctNode.parent.childrenNodes.indexOf(correctNode) - 1 >= 0){
-                BPTNode preCorrectNode = correctNode.parent.childrenNodes.get(correctNode.parent.childrenNodes.indexOf(correctNode) - 1);
-                preCorrectNode.next = left;
-            }else {
-                BPTNode tmpNode = correctNode.parent;
-                if(tmpNode.parent != null){
-                    if (tmpNode.parent.childrenNodes.indexOf(tmpNode) >= 1){ //这个循环也不一定对！飙泪
-                        tmpNode = tmpNode.parent.childrenNodes.get(tmpNode.parent.childrenNodes.indexOf(tmpNode)-1);
-                        tmpNode = tmpNode.childrenNodes.get(tmpNode.childrenNodes.size()-1);
-                        tmpNode.next = left;
-                    }
-                }
 
+            BPTNode tmpnode = theLeftestLeaf;
+            while (tmpnode.next != null){
+                if(tmpnode.next == correctNode)
+                    tmpnode.next = left;
+                tmpnode = tmpnode.next;
             }
+//            if(correctNode.parent.childrenNodes.indexOf(correctNode) - 1 >= 0){
+//                BPTNode preCorrectNode = correctNode.parent.childrenNodes.get(correctNode.parent.childrenNodes.indexOf(correctNode) - 1);
+//                preCorrectNode.next = left;
+//            }else {
+//                BPTNode tmpNode = correctNode.parent;
+//                if(tmpNode.parent != null){
+//                    if (tmpNode.parent.childrenNodes.indexOf(tmpNode) >= 1){ //这个循环也不一定对！飙泪
+//                        tmpNode = tmpNode.parent.childrenNodes.get(tmpNode.parent.childrenNodes.indexOf(tmpNode)-1);
+//                        tmpNode = tmpNode.childrenNodes.get(tmpNode.childrenNodes.size()-1);
+//                        tmpNode.next = left;
+//                    }
+//                }
+//
+//            }
 
             if(correctNode.isLeaf){
                 left.isLeaf = true;
@@ -280,6 +280,9 @@ public class BPTree {
     public void delete(String key){
         //↓要从root开始找key属于哪个叶节点,并记录下如果在中间节点有的那个中间节点
         BPTNode findKeyInWhichLeafNode = root;
+        if(root == null|| root.entries.size() == 0) {
+            return;
+        }
         BPTNode keyInInerLeaf = null;
         while (!findKeyInWhichLeafNode.isLeaf){
             for (int i = 0; i <= findKeyInWhichLeafNode.entries.size(); i++){
@@ -314,6 +317,7 @@ public class BPTree {
                 break;
             }
         }
+
         if(!ifAlreadyHave){
             return;
         } else
@@ -323,13 +327,15 @@ public class BPTree {
 
         int min = (b+1)/2 -1;  //b=5  2
         String successor = "";
-        if(findKeyInWhichLeafNode.entries.size()-1 >= index+1){
-            successor = findKeyInWhichLeafNode.entries.get(index+1).getKey();
+        BPTNode findSuccessorNode = findKeyInWhichLeafNode;
+        if(findSuccessorNode.entries.size()-1 >= index+1){
+            successor = findSuccessorNode.entries.get(index+1).getKey();
         }else {
-            successor = findKeyInWhichLeafNode.entries.get(index - 1).getKey();
+            successor = findSuccessorNode.entries.get(index - 1).getKey();
         }
 
         findKeyInWhichLeafNode.entries.remove(index);
+
         int innerIndex = 0;
         if(keyInInerLeaf != null && !keyInInerLeaf.isLeaf) {
             for (Map.Entry<String, String> entry : keyInInerLeaf.entries) {
@@ -338,7 +344,7 @@ public class BPTree {
                     break;
                 }
             }
-
+            if(findKeyInWhichLeafNode != root)
                 keyInInerLeaf.entries.set(innerIndex, new AbstractMap.SimpleEntry<String, String>(successor, null));
 
           //  这个判断我也不知道要不要,感觉挺必要的但是模拟一种情况的时候又感觉不需要这个？？
@@ -350,7 +356,13 @@ public class BPTree {
             }
         }
 
+        if(findKeyInWhichLeafNode == root && findKeyInWhichLeafNode.entries.size() < min){
+            findKeyInWhichLeafNode.entries.remove(index);
+            return;
+        }
+
         if(findKeyInWhichLeafNode.entries.size() >= min){
+
             return;
         }else {
             BPTNode leftNode = getLeftSibling(findKeyInWhichLeafNode);
@@ -369,31 +381,40 @@ public class BPTree {
                 int indexUpdate = findKeyInWhichLeafNode.parent.childrenNodes.indexOf(findKeyInWhichLeafNode);
                 findKeyInWhichLeafNode.parent.entries.set(indexUpdate,new AbstractMap.SimpleEntry<String, String>(rightNode.entries.get(0).getKey(),null));
             }else if(leftNode != null){//向左合并
-                for(int i = 0; i < findKeyInWhichLeafNode.entries.size(); i++){
-                    leftNode.entries.add(findKeyInWhichLeafNode.entries.get(i));
-                }
-                ///////////////////////有问题↓
-                leftNode.next = findKeyInWhichLeafNode.next;//不一定对！
-                int deleteIndex = leftNode.parent.childrenNodes.indexOf(leftNode);
-                leftNode.parent.entries.remove(deleteIndex);
-                leftNode.parent.childrenNodes.remove(findKeyInWhichLeafNode);//索引页的key怎么删啊！！
-                rotation(leftNode.parent);
-            }else { ///////////////////////有问题↓
-                for(int i = 0; i < rightNode.entries.size(); i++){
-                    findKeyInWhichLeafNode.entries.add(rightNode.entries.get(i));
-                }
-                BPTNode tmpNode = theLeftestLeaf;
-                while (tmpNode.next != null){ //不一定对！
-                    if(tmpNode.next == rightNode){
-                        tmpNode.next = rightNode.next;
-                        break;
+
+                if(leftNode.parent == root && leftNode.parent.entries.size() == 1){
+                    rotation(findKeyInWhichLeafNode);/////////////////////////////////////////////////////////////////////////
+                }else {
+                    for (int i = 0; i < findKeyInWhichLeafNode.entries.size(); i++) {
+                        leftNode.entries.add(findKeyInWhichLeafNode.entries.get(i));
                     }
-                    tmpNode = tmpNode.next;
+                    ///////////////////////有问题↓
+                    leftNode.next = findKeyInWhichLeafNode.next;//不一定对！
+                    int deleteIndex = leftNode.parent.childrenNodes.indexOf(leftNode);
+                    leftNode.parent.entries.remove(deleteIndex);
+                    leftNode.parent.childrenNodes.remove(findKeyInWhichLeafNode);//索引页的key怎么删啊！！
+                    rotation(leftNode.parent);
                 }
-                int deleteIndex = findKeyInWhichLeafNode.parent.childrenNodes.indexOf(findKeyInWhichLeafNode);
-                findKeyInWhichLeafNode.parent.entries.remove(deleteIndex);
-                findKeyInWhichLeafNode.parent.childrenNodes.remove(rightNode);
-                rotation(findKeyInWhichLeafNode.parent);
+            }else { ///////////////////////有问题↓
+                if (rightNode.parent == root && root.entries.size() == 1) {
+                    rotation(findKeyInWhichLeafNode);//////////////////////////
+                } else {
+                    for (int i = 0; i < rightNode.entries.size(); i++) {
+                        findKeyInWhichLeafNode.entries.add(rightNode.entries.get(i));
+                    }
+                    BPTNode tmpNode = theLeftestLeaf;
+                    while (tmpNode.next != null) { //不一定对！
+                        if (tmpNode.next == rightNode) {
+                            tmpNode.next = rightNode.next;
+                            break;
+                        }
+                        tmpNode = tmpNode.next;
+                    }
+                    int deleteIndex = findKeyInWhichLeafNode.parent.childrenNodes.indexOf(findKeyInWhichLeafNode);
+                    findKeyInWhichLeafNode.parent.entries.remove(deleteIndex);
+                    findKeyInWhichLeafNode.parent.childrenNodes.remove(rightNode);
+                    rotation(findKeyInWhichLeafNode.parent);
+                }
             }
 
         }
@@ -401,19 +422,25 @@ public class BPTree {
 
 
     private BPTNode getLeftSibling(BPTNode node){
-        if(node.parent.childrenNodes.indexOf(node) > 0 )
+        if(node.parent != null && node.parent.childrenNodes.indexOf(node) > 0 )
             return node.parent.childrenNodes.get(node.parent.childrenNodes.indexOf(node) - 1);
         else
             return null;
     }
     private BPTNode getRightSibiling(BPTNode node){
-        if(node.parent.childrenNodes.indexOf(node) < node.parent.childrenNodes.size() - 1 )
+        if(node.parent != null && node.parent.childrenNodes.indexOf(node) < node.parent.childrenNodes.size() - 1 )
             return node.parent.childrenNodes.get(node.parent.childrenNodes.indexOf(node) + 1);
         else
             return null;
     }
 
+
     private void rotation(BPTNode innerNode){ //b=5 children>=3 减完
+
+        if(innerNode == root){
+            return;
+        }
+
         int min = (b+1)/2 -1;  //b=5  2
         if(innerNode.parent == null) return;
         if(innerNode.entries.size() >= min){
@@ -454,16 +481,21 @@ public class BPTree {
                     innerNode.childrenNodes.get(i).parent = leftnode;
                 }
                 leftnode.parent.childrenNodes.remove(innerNode);
+                innerNode.parent = null;
+
                 if(leftnode.parent == root && leftnode.parent.entries.size() == 0){
                     root = leftnode;
+                    return;
                 }else if(leftnode.parent.entries.size() == 0){
                     leftnode.parent = leftnode.parent.parent;
                     leftnode.parent.parent.childrenNodes.set(leftnode.parent.parent.childrenNodes.indexOf(leftnode.parent),leftnode);
                     leftnode.parent.parent.childrenNodes.remove(leftnode.parent);
                 }
+                innerNode = leftnode.parent;
+                rotation(innerNode);
             }else {
                 int index = innerNode.parent.childrenNodes.indexOf(innerNode);
-                Map.Entry<String ,String > oup = innerNode.parent.entries.get(index);
+                Map.Entry<String ,String > oup = innerNode.parent.entries.get(index);//////////////////////////////////////////
                 innerNode.entries.add(oup);
                 innerNode.parent.entries.remove(index);
                 for(int i = 0; i < rightnode.entries.size(); i++){
@@ -474,17 +506,18 @@ public class BPTree {
                     rightnode.childrenNodes.get(i).parent = innerNode;
                 }
                 innerNode.parent.childrenNodes.remove(rightnode);
+                rightnode.parent = null;
                 if(innerNode.parent == root && innerNode.parent.entries.size() == 0){ //不一定……对
                     root = innerNode;
+                    return;
                 }else if(innerNode.parent.entries.size() == 0){
                     innerNode.parent = innerNode.parent.parent;  //不一定对
                     innerNode.parent.parent.childrenNodes.set(innerNode.parent.parent.childrenNodes.indexOf(innerNode.parent),innerNode);
                     innerNode.parent.parent.childrenNodes.remove(innerNode.parent);
                 }
+                innerNode = innerNode.parent;
+                rotation(innerNode);
             }
-            if(innerNode.parent == null) return;
-            innerNode = innerNode.parent;
-            rotation(innerNode);
         }
 
     }

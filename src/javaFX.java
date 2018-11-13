@@ -20,6 +20,7 @@ import javax.xml.soap.Text;
 import java.awt.Desktop;
 import java.awt.*;
 import java.io.*;
+import java.util.Map;
 
 public class javaFX extends Application{
     public int time = 0;
@@ -151,20 +152,20 @@ public class javaFX extends Application{
                 try {
                     fis = new FileInputStream(path.getText());
                 } catch (FileNotFoundException e) {
-                    e.printStackTrace();
+                    //e.printStackTrace();
                 }
                 InputStreamReader reader = null;
                 try {
                     reader = new InputStreamReader(fis,"GBK");
                 } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
+                   // e.printStackTrace();
                 }
                 BufferedReader br = new BufferedReader(reader);
                 String s = null;//insert
                 try {
                     s = br.readLine();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                   // e.printStackTrace();
                 }
                 if("INSERT".equals(s)){
                     try {
@@ -189,12 +190,12 @@ public class javaFX extends Application{
 
                         }
                     } catch (IOException e) {
-                        e.printStackTrace();
+                       // e.printStackTrace();
                     }
                     try {
                         br.close();
                     } catch (IOException e) {
-                        e.printStackTrace();
+                      //  e.printStackTrace();
                     }
                     path.setText("finished");
                 }else if("DELETE".equals(s)){
@@ -203,7 +204,7 @@ public class javaFX extends Application{
                             if(isRedBlackTree){
                                 rbTree.delete(s);
                                 time++;
-                                if(time == 100 && rbTree.size <= 500){
+                                if(time == 100 && rbTree.size <= 500){//
                                     rbTree.preorder_tree_walk();
                                     time = 0;
                                 }
@@ -216,8 +217,9 @@ public class javaFX extends Application{
                                 }
                             }
                         }
+
                     } catch (IOException e) {
-                        e.printStackTrace();
+                       // e.printStackTrace();
                     }
                     path.setText("finished");
                 }else {
@@ -227,7 +229,6 @@ public class javaFX extends Application{
                     System.out.println("树内目前含有： "+rbTree.size+" 个数");
                 else
                     System.out.println("树内目前含有： "+bpTree.size+" 个数");
-
             }
         });
 
@@ -302,7 +303,7 @@ public class javaFX extends Application{
                 try {
                     rbTree = initializeRB();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                  //  e.printStackTrace();
                 }
             }
         });
@@ -316,7 +317,7 @@ public class javaFX extends Application{
                 try {
                     bpTree = initializeBP();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                   // e.printStackTrace();
                 }
             }
         });

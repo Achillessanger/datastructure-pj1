@@ -309,14 +309,4 @@ public class RBTree {
         }
     }
 
-    public String searchRange(String from, String to){
-        String result = "";
-        RBTNode x = root;
-        while (x != null){
-            if(x.key.compareTo(from)>=0 && x.key.compareTo(to)<=0){
-
-            }
-        }
-        return result;
-    }
 }
