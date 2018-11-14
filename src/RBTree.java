@@ -5,7 +5,6 @@ import java.util.Stack;
 
 public class RBTree {
     public RBTNode root;
-    private RBTNode guard = new RBTNode(null,BLACK,null,null,null,null);
     private static final boolean RED = true;
     private static final boolean BLACK = false;
     public int size = 0;
@@ -55,23 +54,27 @@ public class RBTree {
         if(node != null) insert(node);
     }
     private void insert(RBTNode node){
-        if(search(node.key) != null) return; //重复就不插入
+        RBTNode search = search(node.key);
+        if(search != null){
+            search.value = node.value;
+            return; //重复就更新
+        }
         size++;
         RBTNode y = null;
         RBTNode x = this.root;
         while (x != null){
             y = x;
-            if(node.key.compareTo(x.key) < 0) x = x.left; //小于
+            if(node.key.compareTo(x.key) < 0) x = x.left; //y最后为应该插入节点的父节点
             else x = x.right;
         }
         node.parent = y;
         if(y != null){
-            if(node.key.compareTo(y.key) < 0) y.left = node;
+            if(node.key.compareTo(y.key) < 0) y.left = node;  //插入node
             else y.right = node;
         }else {
             this.root = node;
         }
-        node.color = RED;
+        node.color = RED;   //最开始插入的总是红的，之后在调整
         insertFixUp(node);
     }
     private void insertFixUp(RBTNode z){
@@ -137,7 +140,7 @@ public class RBTree {
         RBTNode child, parent;
         boolean color;
 
-        if((node.left != null) && (node.right != null)){
+        if((node.left != null) && (node.right != null)){  //删除节点有左右儿子就换成后继删掉后继再调整
             RBTNode successor = node.right;
             while (successor.left != null){
                 successor = successor.left;
@@ -151,7 +154,7 @@ public class RBTree {
             }else
                 this.root = successor;
 
-            child = successor.right; //后继可能有一个右儿子
+            child = successor.right; //后继可能有一个右儿子，要把这个右儿子接上来
             parent = successor.parent;
             color = successor.color;
             if(parent == node)

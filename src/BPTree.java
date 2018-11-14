@@ -162,8 +162,10 @@ public class BPTree {
         //↑找到了插入的叶节点
 
         for(int i = 0; i < findWhereToInsertNode.entries.size(); i++){
-            if(key.compareTo(findWhereToInsertNode.entries.get(i).getKey()) == 0)   //如果重复就不插入了
-                return;
+            if(key.compareTo(findWhereToInsertNode.entries.get(i).getKey()) == 0){
+                findWhereToInsertNode.entries.get(i).setValue(chinese);
+                return;//如果重复就不插入了
+            }
         }
 
         size++;
@@ -330,11 +332,12 @@ public class BPTree {
         BPTNode findSuccessorNode = findKeyInWhichLeafNode;
         if(findSuccessorNode.entries.size()-1 >= index+1){
             successor = findSuccessorNode.entries.get(index+1).getKey();
-        }else {
+        }else if(findKeyInWhichLeafNode != root) {
             successor = findSuccessorNode.entries.get(index - 1).getKey();
         }
 
         findKeyInWhichLeafNode.entries.remove(index);
+
 
         int innerIndex = 0;
         if(keyInInerLeaf != null && !keyInInerLeaf.isLeaf) {
@@ -357,12 +360,12 @@ public class BPTree {
         }
 
         if(findKeyInWhichLeafNode == root && findKeyInWhichLeafNode.entries.size() < min){
-            findKeyInWhichLeafNode.entries.remove(index);
             return;
         }
 
-        if(findKeyInWhichLeafNode.entries.size() >= min){
 
+
+        if(findKeyInWhichLeafNode.entries.size() >= min){
             return;
         }else {
             BPTNode leftNode = getLeftSibling(findKeyInWhichLeafNode);
@@ -383,7 +386,12 @@ public class BPTree {
             }else if(leftNode != null){//向左合并
 
                 if(leftNode.parent == root && leftNode.parent.entries.size() == 1){
-                    rotation(findKeyInWhichLeafNode);/////////////////////////////////////////////////////////////////////////
+                    for(int i = 0; i < findKeyInWhichLeafNode.entries.size(); i++){
+                        leftNode.entries.add(findKeyInWhichLeafNode.entries.get(i));
+                    }
+                    root = leftNode;
+                    leftNode.next = null;
+                    leftNode.parent.childrenNodes.remove(findKeyInWhichLeafNode);
                 }else {
                     for (int i = 0; i < findKeyInWhichLeafNode.entries.size(); i++) {
                         leftNode.entries.add(findKeyInWhichLeafNode.entries.get(i));
@@ -397,7 +405,12 @@ public class BPTree {
                 }
             }else { ///////////////////////有问题↓
                 if (rightNode.parent == root && root.entries.size() == 1) {
-                    rotation(findKeyInWhichLeafNode);//////////////////////////
+                    for(int i = 0; i < rightNode.entries.size(); i++){
+                        findKeyInWhichLeafNode.entries.add(rightNode.entries.get(i));
+                    }
+                    root = findKeyInWhichLeafNode;
+                    findKeyInWhichLeafNode.next = null;
+                    findKeyInWhichLeafNode.parent.childrenNodes.remove(rightNode);
                 } else {
                     for (int i = 0; i < rightNode.entries.size(); i++) {
                         findKeyInWhichLeafNode.entries.add(rightNode.entries.get(i));
@@ -434,6 +447,13 @@ public class BPTree {
             return null;
     }
 
+    private void rotation2(BPTNode newRootNode,int left){
+        int min = (b+1)/2 -1;  //b=5  2
+        if(left == 1){
+
+        }
+
+    }
 
     private void rotation(BPTNode innerNode){ //b=5 children>=3 减完
 

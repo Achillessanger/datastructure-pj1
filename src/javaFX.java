@@ -29,6 +29,8 @@ public class javaFX extends Application{
     public boolean isRedBlackTree = true;
     @Override
     public void start(Stage primaryStage) throws IOException {
+        rbTree = initializeRB();
+        bpTree = initializeBP();
         BorderPane pane = new BorderPane();
 
         Scene scene = new Scene(pane);
@@ -137,8 +139,13 @@ public class javaFX extends Application{
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Browser");
             fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("TXT","*.txt"));
-            File file = fileChooser.showOpenDialog(primaryStage);
-            path.setText(file.toString());
+            try{
+                File file = fileChooser.showOpenDialog(primaryStage);
+                path.setText(file.toString());
+            }catch (Exception e){
+
+            }
+
         });
 
 
@@ -150,6 +157,9 @@ public class javaFX extends Application{
             public void handle(ActionEvent event) {
                 FileInputStream fis = null;
                 try {
+                    if(path.getText().equals("finished")){
+                        return;
+                    }
                     fis = new FileInputStream(path.getText());
                 } catch (FileNotFoundException e) {
                     //e.printStackTrace();
@@ -171,6 +181,8 @@ public class javaFX extends Application{
                     try {
                         while ((s = br.readLine()) != null){//
                             String s2 = br.readLine();
+                            s = s.toLowerCase();
+                            s2 = s2.toLowerCase();
                             if (isRedBlackTree){
                                 rbTree.insert(s,s2);
                                 time++;
@@ -201,6 +213,7 @@ public class javaFX extends Application{
                 }else if("DELETE".equals(s)){
                     try {
                         while ((s = br.readLine()) != null){
+                            s = s.toLowerCase();
                             if(isRedBlackTree){
                                 rbTree.delete(s);
                                 time++;
@@ -225,6 +238,7 @@ public class javaFX extends Application{
                 }else {
                     path.setText("oooooooooooooooooh no I don't know what to do!");
                 }
+//                rbTree.preorder_tree_walk();
                 if(isRedBlackTree)
                     System.out.println("树内目前含有： "+rbTree.size+" 个数");
                 else
@@ -297,28 +311,24 @@ public class javaFX extends Application{
             @Override
             public void handle(ActionEvent event) {
                 isRedBlackTree = true;
-                from.setText("");
-                too.setText("");
                 result.setText("here shows the result");
-                try {
-                    rbTree = initializeRB();
-                } catch (IOException e) {
-                  //  e.printStackTrace();
-                }
+//                try {
+//                    rbTree = initializeRB();
+//                } catch (IOException e) {
+//                  //  e.printStackTrace();
+//                }
             }
         });
         bpbt.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 isRedBlackTree = false;
-                from.setText("");
-                too.setText("");
                 result.setText("here shows the result");
-                try {
-                    bpTree = initializeBP();
-                } catch (IOException e) {
-                   // e.printStackTrace();
-                }
+//                try {
+//                    bpTree = initializeBP();
+//                } catch (IOException e) {
+//                   // e.printStackTrace();
+//                }
             }
         });
 
