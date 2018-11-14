@@ -23,7 +23,8 @@ import java.io.*;
 import java.util.Map;
 
 public class javaFX extends Application{
-    public int time = 0;
+    public int time1 = 0;
+    public int time2 = 0;
     public RBTree rbTree;
     public BPTree bpTree;
     public boolean isRedBlackTree = true;
@@ -86,7 +87,7 @@ public class javaFX extends Application{
                 RBTree.RBTNode resulttt = rbTree.search(searchtf.getText());
                 long consumingTime = System.nanoTime() - startTime;
                 if(rbTree.search(searchtf.getText()) != null){
-                    result.setText( "搜索时间(ns) ： "+consumingTime+"\n"+ searchtf.getText()+" : "+rbTree.search(searchtf.getText()).value.toString());
+                    result.setText(searchtf.getText()+" : "+rbTree.search(searchtf.getText()).value.toString());
                 }else {
                     result.setText("couldn't find this word");
                 }
@@ -95,7 +96,7 @@ public class javaFX extends Application{
                 String resultt = bpTree.search(searchtf.getText());
                 long consumingTime = System.nanoTime() - startTime;
                 if(resultt != null){
-                    result.setText( "搜索时间(ns) ： "+consumingTime+"\n"+searchtf.getText()+" : "+resultt);
+                    result.setText(searchtf.getText()+" : "+resultt);
                 }else {
                     result.setText("couldn't find this word");
                 }
@@ -107,7 +108,7 @@ public class javaFX extends Application{
                 rbTree.inorder_tree_walk(from.getText(),too.getText());
                 long consumingTime = System.nanoTime() - startTime;
                 if(!"".equals(rbTree.result)){
-                    result.setText("搜索时间(ns) ： "+consumingTime+"\n"+rbTree.result);
+                    result.setText(rbTree.result);
                 }else {
                     result.setText("couldn't find words");
                 }
@@ -116,7 +117,7 @@ public class javaFX extends Application{
                 String results = bpTree.searchRange(from.getText(),too.getText());
                 long consumingTime = System.nanoTime() - startTime;
                 if(!"".equals(results)){
-                    result.setText("搜索时间(ns) ： "+consumingTime+"\n" + results);
+                    result.setText(results);
                 }else {
                     result.setText("couldn't find words");
                 }
@@ -185,17 +186,17 @@ public class javaFX extends Application{
                             s2 = s2.toLowerCase();
                             if (isRedBlackTree){
                                 rbTree.insert(s,s2);
-                                time++;
-                                if(time == 100 && rbTree.size <= 500){
+                                time1++;
+                                if(time1 == 100 && rbTree.size <= 500){
                                     rbTree.preorder_tree_walk();
-                                    time = 0;
+                                    time1 = 0;
                                 }
                             } else{
                                 bpTree.insert(s,s2);
-                                time++;
-                                if(time == 100 && bpTree.size <= 500){
+                                time2++;
+                                if(time2 == 100 && bpTree.size <= 500){
                                     bpTree.tree_walk();
-                                    time = 0;
+                                    time2 = 0;
                                 }
                             }
 
@@ -216,17 +217,17 @@ public class javaFX extends Application{
                             s = s.toLowerCase();
                             if(isRedBlackTree){
                                 rbTree.delete(s);
-                                time++;
-                                if(time == 100 && rbTree.size <= 500){//
+                                time1++;
+                                if(time1 == 100 && rbTree.size <= 500){//
                                     rbTree.preorder_tree_walk();
-                                    time = 0;
+                                    time1 = 0;
                                 }
                             }else {
                                 bpTree.delete(s);
-                                time++;
-                                if(time == 100 && bpTree.size <= 500){
+                                time2++;
+                                if(time2 == 100 && bpTree.size <= 500){
                                     bpTree.tree_walk();
-                                    time = 0;
+                                    time2 = 0;
                                 }
                             }
                         }
@@ -239,10 +240,10 @@ public class javaFX extends Application{
                     path.setText("oooooooooooooooooh no I don't know what to do!");
                 }
 //                rbTree.preorder_tree_walk();
-                if(isRedBlackTree)
-                    System.out.println("树内目前含有： "+rbTree.size+" 个数");
-                else
-                    System.out.println("树内目前含有： "+bpTree.size+" 个数");
+//                if(isRedBlackTree)
+//                    System.out.println("树内目前含有： "+rbTree.size+" 个数");
+//                else
+//                    System.out.println("树内目前含有： "+bpTree.size+" 个数");
             }
         });
 
@@ -338,12 +339,12 @@ public class javaFX extends Application{
         Application.launch(args);
     }
     public  RBTree initializeRB() throws IOException{
-        time = 0;
+        time1 = 0;
         RBTree rbtree = new RBTree();
         return rbtree;
     }
     public  BPTree initializeBP() throws IOException{
-        time = 0;
+        time2 = 0;
         BPTree bptree = new BPTree();
         return bptree;
     }

@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.Map;
 
 public class BPTree {
-    private BPTNode root;////////我靠难道这个树对大小还有限制的吗？？？b=5的时候运行不完？？
+    private BPTNode root;
     private BPTNode theLeftestLeaf;
-    private static int b = 5;
+    private static int b = 20;
     public int size = 0;
     public class BPTNode{
         boolean isLeaf;
@@ -46,7 +46,7 @@ public class BPTree {
     }
 
     public int search2(){
-        BPTNode leafnodes = theLeftestLeaf;         ///////////theleftest没变
+        BPTNode leafnodes = theLeftestLeaf;
         int total = 0;
         do{
             total += leafnodes.entries.size();
@@ -56,10 +56,10 @@ public class BPTree {
     }
     public String search(String key) {
         BPTNode findWhereToInsertNode = root;
-        while (!findWhereToInsertNode.isLeaf) { //////这个判断不一定对，不知道是不是null
+        while (!findWhereToInsertNode.isLeaf) {
             for (int i = 0; i <= findWhereToInsertNode.entries.size(); i++){
                 if(i == 0){
-                    if(key.compareTo(findWhereToInsertNode.entries.get(i).getKey()) < 0){ //比最左边数小
+                    if(key.compareTo(findWhereToInsertNode.entries.get(i).getKey()) < 0){
                         findWhereToInsertNode = findWhereToInsertNode.childrenNodes.get(i);
                         break;
                     }
@@ -86,10 +86,10 @@ public class BPTree {
 
     public BPTNode searchNode(String key) {
         BPTNode findWhereToInsertNode = root;
-        while (!findWhereToInsertNode.isLeaf) { //////这个判断不一定对，不知道是不是null
+        while (!findWhereToInsertNode.isLeaf) {
             for (int i = 0; i <= findWhereToInsertNode.entries.size(); i++){
                 if(i == 0){
-                    if(key.compareTo(findWhereToInsertNode.entries.get(i).getKey()) < 0){ //比最左边数小
+                    if(key.compareTo(findWhereToInsertNode.entries.get(i).getKey()) < 0){
                         findWhereToInsertNode = findWhereToInsertNode.childrenNodes.get(i);
                         break;
                     }
@@ -139,10 +139,10 @@ public class BPTree {
 
         BPTNode findWhereToInsertNode = root;
 
-        while (!findWhereToInsertNode.isLeaf) { //////这个判断不一定对，不知道是不是null
+        while (!findWhereToInsertNode.isLeaf) {
             for (int i = 0; i <= findWhereToInsertNode.entries.size(); i++){
                 if(i == 0){
-                    if(key.compareTo(findWhereToInsertNode.entries.get(i).getKey()) < 0){ //比最左边数小
+                    if(key.compareTo(findWhereToInsertNode.entries.get(i).getKey()) < 0){
                         findWhereToInsertNode = findWhereToInsertNode.childrenNodes.get(i);
                         break;
                     }
@@ -171,12 +171,12 @@ public class BPTree {
         size++;
 
         //↓插入
-        if(findWhereToInsertNode.entries.size() == 0){//但是每个叶节点都应该有东西的吧……
+        if(findWhereToInsertNode.entries.size() == 0){
             findWhereToInsertNode.entries.add(new AbstractMap.SimpleEntry<String, String>(key,chinese));
         }
         for(int i = 0; i <= findWhereToInsertNode.entries.size(); i++){
             if(i == 0){
-                if(key.compareTo(findWhereToInsertNode.entries.get(i).getKey()) < 0){ //比最左边数小
+                if(key.compareTo(findWhereToInsertNode.entries.get(i).getKey()) < 0){
                     findWhereToInsertNode.entries.add(i,new AbstractMap.SimpleEntry<String, String>(key,chinese));
                     break;
                 }
@@ -203,9 +203,9 @@ public class BPTree {
                 correctNode.parent = root;
                 newRoot.childrenNodes.add(correctNode);
             }
-            int leftSize = (b)/2;  //5-3
-            int rightSize = (b+1)/2;    //5-2
-            BPTNode left = new BPTNode(false);
+            int leftSize = (b)/2;
+            int rightSize = (b+1)/2;
+            BPTNode left = new BPTNode(false);     //把节点拆分成左右两个，并调整指针
             BPTNode right = new BPTNode(false);
             left.parent = correctNode.parent;
             right.parent = correctNode.parent;
@@ -218,26 +218,12 @@ public class BPTree {
                     tmpnode.next = left;
                 tmpnode = tmpnode.next;
             }
-//            if(correctNode.parent.childrenNodes.indexOf(correctNode) - 1 >= 0){
-//                BPTNode preCorrectNode = correctNode.parent.childrenNodes.get(correctNode.parent.childrenNodes.indexOf(correctNode) - 1);
-//                preCorrectNode.next = left;
-//            }else {
-//                BPTNode tmpNode = correctNode.parent;
-//                if(tmpNode.parent != null){
-//                    if (tmpNode.parent.childrenNodes.indexOf(tmpNode) >= 1){ //这个循环也不一定对！飙泪
-//                        tmpNode = tmpNode.parent.childrenNodes.get(tmpNode.parent.childrenNodes.indexOf(tmpNode)-1);
-//                        tmpNode = tmpNode.childrenNodes.get(tmpNode.childrenNodes.size()-1);
-//                        tmpNode.next = left;
-//                    }
-//                }
-//
-//            }
 
-            if(correctNode.isLeaf){
+            if(correctNode.isLeaf){   //如果要拆分的满节点本来就是叶节点，就只需要复制数据
                 left.isLeaf = true;
                 right.isLeaf = true;
 
-                for(int i = 0; i < leftSize; i++){
+                for(int i = 0; i < leftSize; i++){                  //将值复制进左右节点中
                     left.entries.add(correctNode.entries.get(i));
                 }
                 for(int i = 0; i < rightSize; i++){
@@ -252,7 +238,7 @@ public class BPTree {
                 if(theLeftestLeaf == correctNode){
                     theLeftestLeaf = left;
                 }
-            }else {
+            }else {                         //如果拆分的节点是内节点，就还要调整childrennodes和key值
                 for(int i = 0; i < leftSize; i++){
                     left.entries.add(correctNode.entries.get(i));
                 }
@@ -266,12 +252,12 @@ public class BPTree {
                 correctNode.parent.childrenNodes.add(upIndex,left);
                 correctNode.parent.childrenNodes.add(upIndex+1,right);
                 correctNode.parent.entries.add(upIndex,new AbstractMap.SimpleEntry<String, String>(upKey,null));
-                for (int i = 0; i < (b+2)/2; i++){ //////我也不知道这个i对不对？？
+                for (int i = 0; i < (b+2)/2; i++){                          //重设指针
                     correctNode.childrenNodes.get(i).parent = left;
                     left.childrenNodes.add(correctNode.childrenNodes.get(i));
                 }
                 for (int i = (b+2)/2; i < b + 1; i++){
-                    correctNode.childrenNodes.get(i).parent = right;                ////////////////////bug!!!只在b=4,5时有用qwq但是现在好像又都有用了……
+                    correctNode.childrenNodes.get(i).parent = right;
                     right.childrenNodes.add(correctNode.childrenNodes.get(i));
                 }
             }
@@ -286,7 +272,7 @@ public class BPTree {
             return;
         }
         BPTNode keyInInerLeaf = null;
-        while (!findKeyInWhichLeafNode.isLeaf){
+        while (!findKeyInWhichLeafNode.isLeaf){    //找key所在的叶节点和内节点
             for (int i = 0; i <= findKeyInWhichLeafNode.entries.size(); i++){
                 if(i == 0){
                     if(key.compareTo(findKeyInWhichLeafNode.entries.get(i).getKey()) < 0){
@@ -296,7 +282,7 @@ public class BPTree {
                 }else if(i == findKeyInWhichLeafNode.entries.size()){
                     if(key.compareTo(findKeyInWhichLeafNode.entries.get(i - 1).getKey()) >= 0){
                         if(key.compareTo(findKeyInWhichLeafNode.entries.get(i - 1).getKey()) == 0){
-                            keyInInerLeaf = findKeyInWhichLeafNode; ///逻辑不一定对！！
+                            keyInInerLeaf = findKeyInWhichLeafNode;
                         }
                         findKeyInWhichLeafNode = findKeyInWhichLeafNode.childrenNodes.get(i);
                         break;
@@ -324,12 +310,12 @@ public class BPTree {
             return;
         } else
             size--;
-        //↑找到了key所在的叶节点和中间节点 5要有3个及以上，4要有2个
+        //↑找到了key所在的叶节点和中间节点 (5要有3个及以上，4要有2个)
         //如果L至少半满，可直接删除
 
-        int min = (b+1)/2 -1;  //b=5  2
+        int min = (b+1)/2 -1;
         String successor = "";
-        BPTNode findSuccessorNode = findKeyInWhichLeafNode;
+        BPTNode findSuccessorNode = findKeyInWhichLeafNode;    //找后继
         if(findSuccessorNode.entries.size()-1 >= index+1){
             successor = findSuccessorNode.entries.get(index+1).getKey();
         }else if(findKeyInWhichLeafNode != root) {
@@ -350,7 +336,7 @@ public class BPTree {
             if(findKeyInWhichLeafNode != root)
                 keyInInerLeaf.entries.set(innerIndex, new AbstractMap.SimpleEntry<String, String>(successor, null));
 
-          //  这个判断我也不知道要不要,感觉挺必要的但是模拟一种情况的时候又感觉不需要这个？？
+            //如果不对，调整被替换上去的后继的值
             if(successor.compareTo(keyInInerLeaf.childrenNodes.get(innerIndex+1).entries.get(0).getKey()) > 0){
                 keyInInerLeaf.entries.set(innerIndex,new AbstractMap.SimpleEntry<String, String>(keyInInerLeaf.childrenNodes.get(innerIndex+1).entries.get(0).getKey(), null));
             }
@@ -359,6 +345,7 @@ public class BPTree {
             }
         }
 
+        //如果操作的节点是root的话，直接删掉就可以返回了，不需要进行下面的调整了
         if(findKeyInWhichLeafNode == root && findKeyInWhichLeafNode.entries.size() < min){
             return;
         }
@@ -377,13 +364,13 @@ public class BPTree {
                 findKeyInWhichLeafNode.entries.add(0,o);
                 int indexUpdate = leftNode.parent.childrenNodes.indexOf(leftNode);
                 leftNode.parent.entries.set(indexUpdate,new AbstractMap.SimpleEntry<String, String>(o.getKey(),null));
-            }else if(rightNode != null && rightNode.entries.size() >= min+1 ){
+            }else if(rightNode != null && rightNode.entries.size() >= min+1 ){ //向右边借key
                 Map.Entry<String,String > o = new AbstractMap.SimpleEntry<String, String>(rightNode.entries.get(0).getKey(),rightNode.entries.get(0).getValue());
                 rightNode.entries.remove(0);
                 findKeyInWhichLeafNode.entries.add(o);
                 int indexUpdate = findKeyInWhichLeafNode.parent.childrenNodes.indexOf(findKeyInWhichLeafNode);
                 findKeyInWhichLeafNode.parent.entries.set(indexUpdate,new AbstractMap.SimpleEntry<String, String>(rightNode.entries.get(0).getKey(),null));
-            }else if(leftNode != null){//向左合并
+            }else if(leftNode != null){//向左节点合并
 
                 if(leftNode.parent == root && leftNode.parent.entries.size() == 1){
                     for(int i = 0; i < findKeyInWhichLeafNode.entries.size(); i++){
@@ -396,14 +383,14 @@ public class BPTree {
                     for (int i = 0; i < findKeyInWhichLeafNode.entries.size(); i++) {
                         leftNode.entries.add(findKeyInWhichLeafNode.entries.get(i));
                     }
-                    ///////////////////////有问题↓
-                    leftNode.next = findKeyInWhichLeafNode.next;//不一定对！
+
+                    leftNode.next = findKeyInWhichLeafNode.next;
                     int deleteIndex = leftNode.parent.childrenNodes.indexOf(leftNode);
                     leftNode.parent.entries.remove(deleteIndex);
-                    leftNode.parent.childrenNodes.remove(findKeyInWhichLeafNode);//索引页的key怎么删啊！！
+                    leftNode.parent.childrenNodes.remove(findKeyInWhichLeafNode);
                     rotation(leftNode.parent);
                 }
-            }else { ///////////////////////有问题↓
+            }else {//右节点合并过来
                 if (rightNode.parent == root && root.entries.size() == 1) {
                     for(int i = 0; i < rightNode.entries.size(); i++){
                         findKeyInWhichLeafNode.entries.add(rightNode.entries.get(i));
@@ -416,7 +403,7 @@ public class BPTree {
                         findKeyInWhichLeafNode.entries.add(rightNode.entries.get(i));
                     }
                     BPTNode tmpNode = theLeftestLeaf;
-                    while (tmpNode.next != null) { //不一定对！
+                    while (tmpNode.next != null) {
                         if (tmpNode.next == rightNode) {
                             tmpNode.next = rightNode.next;
                             break;
@@ -447,20 +434,10 @@ public class BPTree {
             return null;
     }
 
-    private void rotation2(BPTNode newRootNode,int left){
-        int min = (b+1)/2 -1;  //b=5  2
-        if(left == 1){
-
-        }
-
-    }
-
-    private void rotation(BPTNode innerNode){ //b=5 children>=3 减完
-
+    private void rotation(BPTNode innerNode){ //用来调整删除后的内节点们
         if(innerNode == root){
             return;
         }
-
         int min = (b+1)/2 -1;  //b=5  2
         if(innerNode.parent == null) return;
         if(innerNode.entries.size() >= min){
@@ -478,7 +455,7 @@ public class BPTree {
                 innerNode.childrenNodes.add(0,leftnode.childrenNodes.get(leftnode.childrenNodes.size()-1));
                 leftnode.childrenNodes.get(leftnode.childrenNodes.size()-1).parent = innerNode;
                 leftnode.childrenNodes.remove(leftnode.childrenNodes.size()-1);
-            }else if(rightnode != null && rightnode.entries.size() >= min+1 ){
+            }else if(rightnode != null && rightnode.entries.size() >= min+1 ){ //向左转
                 int index = innerNode.parent.childrenNodes.indexOf(innerNode);
                 Map.Entry<String ,String > oup = innerNode.parent.entries.get(index);
                 Map.Entry<String ,String > odown = rightnode.entries.get(0);
@@ -488,7 +465,7 @@ public class BPTree {
                 innerNode.childrenNodes.add(rightnode.childrenNodes.get(0));
                 rightnode.childrenNodes.get(0).parent = innerNode;
                 rightnode.childrenNodes.remove(0);
-            }else if(leftnode != null){
+            }else if(leftnode != null){   //上面一个值的和自己节点和指针的全部都合并到左兄弟
                 int index = leftnode.parent.childrenNodes.indexOf(leftnode);
                 Map.Entry<String ,String > oup = leftnode.parent.entries.get(index);
                 leftnode.entries.add(oup);
@@ -513,9 +490,9 @@ public class BPTree {
                 }
                 innerNode = leftnode.parent;
                 rotation(innerNode);
-            }else {
+            }else {     //上面一个值的和右兄弟的所有值和指针都往自己节点合并
                 int index = innerNode.parent.childrenNodes.indexOf(innerNode);
-                Map.Entry<String ,String > oup = innerNode.parent.entries.get(index);//////////////////////////////////////////
+                Map.Entry<String ,String > oup = innerNode.parent.entries.get(index);
                 innerNode.entries.add(oup);
                 innerNode.parent.entries.remove(index);
                 for(int i = 0; i < rightnode.entries.size(); i++){
@@ -527,11 +504,11 @@ public class BPTree {
                 }
                 innerNode.parent.childrenNodes.remove(rightnode);
                 rightnode.parent = null;
-                if(innerNode.parent == root && innerNode.parent.entries.size() == 0){ //不一定……对
+                if(innerNode.parent == root && innerNode.parent.entries.size() == 0){
                     root = innerNode;
                     return;
                 }else if(innerNode.parent.entries.size() == 0){
-                    innerNode.parent = innerNode.parent.parent;  //不一定对
+                    innerNode.parent = innerNode.parent.parent;
                     innerNode.parent.parent.childrenNodes.set(innerNode.parent.parent.childrenNodes.indexOf(innerNode.parent),innerNode);
                     innerNode.parent.parent.childrenNodes.remove(innerNode.parent);
                 }
@@ -540,34 +517,5 @@ public class BPTree {
             }
         }
 
-    }
-    public BPTNode findInnerNode(String key){
-        BPTNode findKeyInWhichLeafNode = root;
-        BPTNode keyInInerLeaf = null;
-        while (!findKeyInWhichLeafNode.isLeaf){
-            for (int i = 0; i <= findKeyInWhichLeafNode.entries.size(); i++){
-                if(i == 0){
-                    if(key.compareTo(findKeyInWhichLeafNode.entries.get(i).getKey()) < 0){
-                        findKeyInWhichLeafNode = findKeyInWhichLeafNode.childrenNodes.get(i);
-                        break;
-                    }
-                }else if(i == findKeyInWhichLeafNode.entries.size()){
-                    if(key.compareTo(findKeyInWhichLeafNode.entries.get(i - 1).getKey()) >= 0){
-                        if(key.compareTo(findKeyInWhichLeafNode.entries.get(i - 1).getKey()) == 0){
-                            keyInInerLeaf = findKeyInWhichLeafNode; ///逻辑不一定对！！
-                        }
-                        findKeyInWhichLeafNode = findKeyInWhichLeafNode.childrenNodes.get(i);
-                        break;
-                    }
-                }else if(key.compareTo(findKeyInWhichLeafNode.entries.get(i - 1).getKey()) >= 0 && key.compareTo(findKeyInWhichLeafNode.entries.get(i).getKey()) < 0) {
-                    if(key.compareTo(findKeyInWhichLeafNode.entries.get(i - 1).getKey()) == 0){
-                        keyInInerLeaf = findKeyInWhichLeafNode;
-                    }
-                    findKeyInWhichLeafNode = findKeyInWhichLeafNode.childrenNodes.get(i);
-                    break;
-                }
-            }
-        }
-        return keyInInerLeaf;
     }
 }

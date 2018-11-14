@@ -192,7 +192,6 @@ public class RBTree {
             this.root = child; //node是根节点
         }
 
-        // if(child == null) child = guard;///////////////////////////////////////////////////////
         if(!color) removeFixUp(child,parent); //child变成了需要调整的节点
         node = null;
     }
@@ -308,7 +307,6 @@ public class RBTree {
             }else {
                 inorder(T.right,from,to);
             }
-
         }
     }
 
